@@ -41,8 +41,8 @@ RSC=rc.exe
 # PROP Output_Dir "../../lib/release"
 # PROP Intermediate_Dir "obj/ode/Release"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GR /GX /O2 /I "../../include" /I "../../OPCODE" /D "ODE_DLL" /D "WIN32" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../include" /I "../../OPCODE" /D "ODE_DLL" /D "WIN32" /YX /FD /c
+# ADD BASE CPP /nologo /MD /W3 /GR /GX /O2 /Oy /I "../../include" /I "../../OPCODE" /D "ODE_DLL" /D "WIN32" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /Oy /I "../../include" /I "../../OPCODE" /D "ODE_DLL" /D "WIN32" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -213,10 +213,6 @@ SOURCE=../../ode/src/collision_util.h
 # End Source File
 # Begin Source File
 
-SOURCE=../../ode/src/heightfield.h
-# End Source File
-# Begin Source File
-
 SOURCE=../../ode/src/joint.h
 # End Source File
 # Begin Source File
@@ -333,10 +329,6 @@ SOURCE=../../ode/src/collision_trimesh_distance.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=../../ode/src/collision_trimesh_plane.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=../../ode/src/collision_trimesh_ray.cpp
 # End Source File
 # Begin Source File
@@ -366,10 +358,6 @@ SOURCE=../../ode/src/error.cpp
 # Begin Source File
 
 SOURCE=../../ode/src/export-dif.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=../../ode/src/heightfield.cpp
 # End Source File
 # Begin Source File
 

@@ -81,7 +81,6 @@ OBJECTS := \
 	$(OBJDIR)/collision_trimesh_box.o \
 	$(OBJDIR)/collision_trimesh_ccylinder.o \
 	$(OBJDIR)/collision_trimesh_distance.o \
-	$(OBJDIR)/collision_trimesh_plane.o \
 	$(OBJDIR)/collision_trimesh_ray.o \
 	$(OBJDIR)/collision_trimesh_sphere.o \
 	$(OBJDIR)/collision_trimesh_trimesh.o \
@@ -90,7 +89,6 @@ OBJECTS := \
 	$(OBJDIR)/cylinder.o \
 	$(OBJDIR)/error.o \
 	$(OBJDIR)/export-dif.o \
-	$(OBJDIR)/heightfield.o \
 	$(OBJDIR)/joint.o \
 	$(OBJDIR)/lcp.o \
 	$(OBJDIR)/mass.o \
@@ -272,11 +270,6 @@ $(OBJDIR)/collision_trimesh_distance.o: ../../ode/src/collision_trimesh_distance
 	@echo $(notdir $<)
 	@$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-$(OBJDIR)/collision_trimesh_plane.o: ../../ode/src/collision_trimesh_plane.cpp
-	-@$(CMD_MKOBJDIR)
-	@echo $(notdir $<)
-	@$(CXX) $(CXXFLAGS) -o $@ -c $<
-
 $(OBJDIR)/collision_trimesh_ray.o: ../../ode/src/collision_trimesh_ray.cpp
 	-@$(CMD_MKOBJDIR)
 	@echo $(notdir $<)
@@ -313,11 +306,6 @@ $(OBJDIR)/error.o: ../../ode/src/error.cpp
 	@$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 $(OBJDIR)/export-dif.o: ../../ode/src/export-dif.cpp
-	-@$(CMD_MKOBJDIR)
-	@echo $(notdir $<)
-	@$(CXX) $(CXXFLAGS) -o $@ -c $<
-
-$(OBJDIR)/heightfield.o: ../../ode/src/heightfield.cpp
 	-@$(CMD_MKOBJDIR)
 	@echo $(notdir $<)
 	@$(CXX) $(CXXFLAGS) -o $@ -c $<

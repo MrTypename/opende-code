@@ -75,8 +75,8 @@ extern "C" {
   "assertion \"" #a "\" failed in %s() [%s]",__FUNCTION__,__FILE__);
 #define dUASSERT(a,msg) if (!(a)) dDebug (d_ERR_UASSERT, \
   msg " in %s()", __FUNCTION__);
-#define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT,				\
-msg " in %s() File %s Line %d", __FUNCTION__, __FILE__,__LINE__);
+#define dDEBUGMSG(msg) dMessage (d_ERR_UASSERT, \
+  msg " in %s()", __FUNCTION__);
 #else
 #define dIASSERT(a) if (!(a)) dDebug (d_ERR_IASSERT, \
   "assertion \"" #a "\" failed in %s:%d",__FILE__,__LINE__);
@@ -138,7 +138,7 @@ typedef dReal dQuaternion[4];
 #elif defined(HAVE_ISNANF)
 #define dIsNan(x) (isnanf(x))
 #else
-  /*
+  /* 
      fall back to _isnan which is the VC way,
      this may seem redundant since we already checked
      for _isnan before, but if isnan is detected by
@@ -196,7 +196,7 @@ typedef dReal dQuaternion[4];
   ((char*)dEFFICIENT_SIZE(((size_t)(alloca((n)+(EFFICIENT_ALIGNMENT-1))))))
 
 
-// Use the error-checking memory allocation system.  Because this system uses heap
+// Use the error-checking memory allocation system.  Becuase this system uses heap
 //  (malloc) instead of stack (alloca), it is slower.  However, it allows you to
 //  simulate larger scenes, as well as handle out-of-memory errors in a somewhat
 //  graceful manner
@@ -254,8 +254,7 @@ enum {
   dJointTypeFixed,
   dJointTypeNull,
   dJointTypeAMotor,
-  dJointTypeLMotor,
-  dJointTypePlane2D
+  dJointTypeLMotor
 };
 
 

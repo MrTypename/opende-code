@@ -153,43 +153,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "test_feedback"=./test_feedback.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name drawstuff
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "test_friction"=./test_friction.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name drawstuff
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "test_heightfield"=./test_heightfield.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -261,43 +225,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "test_motor"=./test_motor.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name drawstuff
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "test_ode"=./test_ode.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name drawstuff
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "test_plane2d"=./test_plane2d.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -388,24 +316,6 @@ Package=<4>
 ###############################################################################
 
 Project: "test_cyl"=./test_cyl.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name drawstuff
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "test_cylvssphere"=./test_cylvssphere.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

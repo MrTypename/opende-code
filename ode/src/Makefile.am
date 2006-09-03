@@ -17,9 +17,6 @@ traplib_PROGRAMS=libode
 libode_SOURCES=
 libode_DEPENDENCIES = libfast.a libode.a
 libode_LDFLAGS= @SHARED_LDFLAGS@
-if USE_SONAME
-libode_LDFLAGS+=-Wl,-soname,@ODE_SONAME@
-endif
 libode_LDADD=$(libode_a_OBJECTS) $(libfast_a_OBJECTS)
 if OPCODE
 libode_DEPENDENCIES+= libOPCODE.a
@@ -57,9 +54,6 @@ libode_a_SOURCES = 	objects.h \
 			rotation.cpp \
 			collision_space.cpp \
 			collision_space_internal.h \
-                        collision_cylinder_box.cpp \
-                        collision_cylinder_sphere.cpp \
-                        collision_cylinder_plane.cpp \
 			sphere.cpp \
 			box.cpp \
 			capsule.cpp \
@@ -88,9 +82,7 @@ libode_a_SOURCES = 	objects.h \
 			util.cpp \
 			memory.cpp \
 			util.h \
-			misc.cpp \
-			heightfield.cpp \
-			heightfield.h
+			misc.cpp
 
 if OPCODE
 noinst_LIBRARIES+= libOPCODE.a
@@ -149,8 +141,10 @@ libode_a_SOURCES+=	collision_trimesh_trimesh.cpp \
 			collision_trimesh_ccylinder.cpp \
 			collision_trimesh_distance.cpp \
 			collision_trimesh_internal.h \
-                        collision_cylinder_trimesh.cpp \
-                        collision_trimesh_plane.cpp
+                        collision_cylinder_box.cpp \
+                        collision_cylinder_sphere.cpp \
+                        collision_cylinder_plane.cpp \
+                        collision_cylinder_trimesh.cpp
 endif
 
 

@@ -374,16 +374,6 @@ const dReal * dBodyGetPosition (dBodyID b)
 }
 
 
-void dBodyCopyPosition (dBodyID b, dVector3 pos)
-{
-	dAASSERT (b);
-	dReal* src = b->posr.pos;
-	pos[0] = src[0];
-	pos[1] = src[1];
-	pos[2] = src[2];
-}
-
-
 const dReal * dBodyGetRotation (dBodyID b)
 {
   dAASSERT (b);
@@ -395,17 +385,6 @@ const dReal * dBodyGetQuaternion (dBodyID b)
 {
   dAASSERT (b);
   return b->q;
-}
-
-
-void dBodyCopyQuaternion (dBodyID b, dQuaternion quat)
-{
-	dAASSERT (b);
-	dReal* src = b->q;
-	quat[0] = src[0];
-	quat[1] = src[1];
-	quat[2] = src[2];
-	quat[3] = src[3];
 }
 
 
@@ -425,9 +404,7 @@ const dReal * dBodyGetAngularVel (dBodyID b)
 
 void dBodySetMass (dBodyID b, const dMass *mass)
 {
-  dAASSERT (b && mass );
-  dIASSERT(dMassCheck(mass));
-
+  dAASSERT (b && mass);
   memcpy (&b->mass,mass,sizeof(dMass));
   if (dInvertPDMatrix (b->mass.I,b->invI,3)==0) {
     dDEBUGMSG ("inertia must be positive definite!");
@@ -874,7 +851,7 @@ void dBodySetAutoDisableFlag (dBodyID b, int do_auto_disable)
 		b->adis.idle_steps = dWorldGetAutoDisableSteps(b->world);
 		b->adis.idle_time = dWorldGetAutoDisableTime(b->world);
 	}
-	else
+	else 
 	{
 		b->flags |= dxBodyAutoDisable;
 	}
@@ -1000,12 +977,6 @@ dxJoint * dJointCreateLMotor (dWorldID w, dJointGroupID group)
 {
   dAASSERT (w);
   return createJoint (w,group,&__dlmotor_vtable);
-}
-
-dxJoint * dJointCreatePlane2D (dWorldID w, dJointGroupID group)
-{
-  dAASSERT (w);
-  return createJoint (w,group,&__dplane2d_vtable);
 }
 
 void dJointDestroy (dxJoint *j)
@@ -1174,7 +1145,7 @@ dJointID dConnectingJoint (dBodyID in_b1, dBodyID in_b2)
 		b1 = in_b1;
 		b2 = in_b2;
 	}
-
+		
     // look through b1's neighbour list for b2
     for (dxJointNode *n=b1->firstjoint; n; n=n->next) {
         if (n->body == b2) return n->joint;
@@ -1200,7 +1171,7 @@ int dConnectingJointList (dBodyID in_b1, dBodyID in_b2, dJointID* out_list)
 		b1 = in_b1;
 		b2 = in_b2;
 	}
-
+		
     // look through b1's neighbour list for b2
     int numConnectingJoints = 0;
     for (dxJointNode *n=b1->firstjoint; n; n=n->next) {

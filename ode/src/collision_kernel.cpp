@@ -179,41 +179,25 @@ static void initColliders()
   setCollider (dRayClass,dBoxClass,&dCollideRayBox);
   setCollider (dRayClass,dCapsuleClass,&dCollideRayCapsule);
   setCollider (dRayClass,dPlaneClass,&dCollideRayPlane);
-  setCollider (dRayClass,dCylinderClass,&dCollideRayCylinder);
 #ifdef dTRIMESH_ENABLED
   setCollider (dTriMeshClass,dSphereClass,&dCollideSTL);
   setCollider (dTriMeshClass,dBoxClass,&dCollideBTL);
   setCollider (dTriMeshClass,dRayClass,&dCollideRTL);
   setCollider (dTriMeshClass,dTriMeshClass,&dCollideTTL);
   setCollider (dTriMeshClass,dCapsuleClass,&dCollideCCTL);
-  setCollider (dTriMeshClass,dPlaneClass,&dCollideTrimeshPlane);
   setCollider (dCylinderClass,dTriMeshClass,&dCollideCylinderTrimesh);
 #endif
   setCollider (dCylinderClass,dBoxClass,&dCollideCylinderBox);
   setCollider (dCylinderClass,dSphereClass,&dCollideCylinderSphere);
   setCollider (dCylinderClass,dPlaneClass,&dCollideCylinderPlane);
   //setCollider (dCylinderClass,dCylinderClass,&dCollideCylinderCylinder);
-
 //--> Convex Collision
   setCollider (dConvexClass,dPlaneClass,&dCollideConvexPlane);
   setCollider (dSphereClass,dConvexClass,&dCollideSphereConvex);
   setCollider (dConvexClass,dBoxClass,&dCollideConvexBox);
   setCollider (dConvexClass,dCapsuleClass,&dCollideConvexCapsule);
   setCollider (dConvexClass,dConvexClass,&dCollideConvexConvex);
-  setCollider (dRayClass,dConvexClass,&dCollideRayConvex);
 //<-- Convex Collision
-
-//--> dHeightfield Collision
-  setCollider (dHeightfieldClass,dRayClass,&dCollideHeightfield);
-  setCollider (dHeightfieldClass,dSphereClass,&dCollideHeightfield);
-  setCollider (dHeightfieldClass,dBoxClass,&dCollideHeightfield);
-  setCollider (dHeightfieldClass,dCapsuleClass,&dCollideHeightfield);
-  setCollider (dHeightfieldClass,dCylinderClass,&dCollideHeightfield);
-  setCollider (dHeightfieldClass,dConvexClass,&dCollideHeightfield);
-#ifdef dTRIMESH_ENABLED
-  setCollider (dHeightfieldClass,dTriMeshClass,&dCollideHeightfield);
-#endif
-//<-- dHeightfield Collision
 
   setAllColliders (dGeomTransformClass,&dCollideTransform);
 }
@@ -425,7 +409,7 @@ void *dGeomGetData (dxGeom *g)
 void dGeomSetBody (dxGeom *g, dxBody *b)
 {
   dAASSERT (g);
-  dUASSERT (b == NULL || (g->gflags & GEOM_PLACEABLE),"geom must be placeable");
+  dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
   CHECK_NOT_LOCKED (g->parent_space);
 
   if (b) {
