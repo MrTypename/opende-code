@@ -29,14 +29,14 @@
 
 
 //<---- Convex Object
-dReal planes[]= // planes for a cube, these should coincide with the face array
+dReal planes[]= // planes for a cube
   {
     1.0f ,0.0f ,0.0f ,0.25f,
     0.0f ,1.0f ,0.0f ,0.25f,
     0.0f ,0.0f ,1.0f ,0.25f,
-    -1.0f,0.0f ,0.0f ,0.25f,
+    0.0f ,0.0f ,-1.0f,0.25f,
     0.0f ,-1.0f,0.0f ,0.25f,
-    0.0f ,0.0f ,-1.0f,0.25f
+    -1.0f,0.0f ,0.0f ,0.25f
     /*
     1.0f ,0.0f ,0.0f ,2.0f,
     0.0f ,1.0f ,0.0f ,1.0f,
@@ -91,7 +91,7 @@ unsigned int polygons[] = //Polygons for a cube (6 squares)
 #define DENSITY (5.0)		// density of all objects
 #define GPB 3			// maximum number of geometries per body
 #define MAX_CONTACTS 8		// maximum number of contact points per body
-#define USE_GEOM_OFFSET 1
+
 
 // dynamics and collision objects
 
@@ -111,7 +111,7 @@ static int show_aabb = 0;	// show geom AABBs?
 static int show_contacts = 0;	// show contact points?
 static int random_pos = 1;	// drop objects from random position?
 static int write_world = 0;
-static int show_body = 1;
+
 
 // this is called by dSpaceCollide when two objects in space are
 // potentially colliding.
@@ -188,12 +188,10 @@ static void command (int cmd)
   int j,k;
   dReal sides[3];
   dMass m;
-  int setBody;
-  
+
   cmd = locase (cmd);
   if (cmd == 'b' || cmd == 's' || cmd == 'c' || cmd == 'x' || cmd == 'y' || cmd == 'v')
   {
-    setBody = 0;
     if (num < NUM) {
       i = num;
       num++;
@@ -215,25 +213,21 @@ static void command (int cmd)
     for (k=0; k<3; k++) sides[k] = dRandReal()*0.5+0.1;
 
     dMatrix3 R;
-    if (random_pos) 
-      {
-	dBodySetPosition (obj[i].body,
-			  dRandReal()*2-1,dRandReal()*2-1,dRandReal()+2);
-	dRFromAxisAndAngle (R,dRandReal()*2.0-1.0,dRandReal()*2.0-1.0,
-			    dRandReal()*2.0-1.0,dRandReal()*10.0-5.0);
+    if (random_pos) {
+      dBodySetPosition (obj[i].body,
+			dRandReal()*2-1,dRandReal()*2-1,dRandReal()+2);
+      dRFromAxisAndAngle (R,dRandReal()*2.0-1.0,dRandReal()*2.0-1.0,
+			  dRandReal()*2.0-1.0,dRandReal()*10.0-5.0);
+    }
+    else {
+      dReal maxheight = 0;
+      for (k=0; k<num; k++) {
+	const dReal *pos = dBodyGetPosition (obj[k].body);
+	if (pos[2] > maxheight) maxheight = pos[2];
       }
-    else 
-      {
-	dReal maxheight = 0;
-	for (k=0; k<num; k++) 
-	  {
-	    const dReal *pos = dBodyGetPosition (obj[k].body);
-	    if (pos[2] > maxheight) maxheight = pos[2];
-	  }
-	dBodySetPosition (obj[i].body, 0,0,maxheight+1);
-	dRSetIdentity (R);
-	//dRFromAxisAndAngle (R,0,0,1,/*dRandReal()*10.0-5.0*/0);
-      }
+      dBodySetPosition (obj[i].body, 0,0,maxheight+1);
+      dRFromAxisAndAngle (R,0,0,1,/*dRandReal()*10.0-5.0*/0);
+    }
     dBodySetRotation (obj[i].body,R);
     dBodySetData (obj[i].body,(void*) i);
 
@@ -266,59 +260,6 @@ static void command (int cmd)
       sides[0] *= 0.5;
       dMassSetSphere (&m,DENSITY,sides[0]);
       obj[i].geom[0] = dCreateSphere (space,sides[0]);
-    }
-    else if (cmd == 'x' && USE_GEOM_OFFSET) {
-      setBody = 1;
-      // start accumulating masses for the encapsulated geometries
-      dMass m2;
-      dMassSetZero (&m);
-
-      dReal dpos[GPB][3];	// delta-positions for encapsulated geometries
-      dMatrix3 drot[GPB];
-      
-      // set random delta positions
-      for (j=0; j<GPB; j++) {
-		for (k=0; k<3; k++) dpos[j][k] = dRandReal()*0.3-0.15;
-      }
-    
-      for (k=0; k<GPB; k++) {
-		if (k==0) {
-		  dReal radius = dRandReal()*0.25+0.05;
-		  obj[i].geom[k] = dCreateSphere (space,radius);
-		  dMassSetSphere (&m2,DENSITY,radius);
-		}
-		else if (k==1) {
-		  obj[i].geom[k] = dCreateBox (space,sides[0],sides[1],sides[2]);
-		  dMassSetBox (&m2,DENSITY,sides[0],sides[1],sides[2]);
-		}
-		else {
-		  dReal radius = dRandReal()*0.1+0.05;
-		  dReal length = dRandReal()*1.0+0.1;
-		  obj[i].geom[k] = dCreateCapsule (space,radius,length);
-		  dMassSetCapsule (&m2,DENSITY,3,radius,length);
-		}
-
-		dRFromAxisAndAngle (drot[k],dRandReal()*2.0-1.0,dRandReal()*2.0-1.0,
-					dRandReal()*2.0-1.0,dRandReal()*10.0-5.0);
-		dMassRotate (&m2,drot[k]);
-		
-		dMassTranslate (&m2,dpos[k][0],dpos[k][1],dpos[k][2]);
-
-		// add to the total mass
-		dMassAdd (&m,&m2);
-		
-	}
-      for (k=0; k<GPB; k++) {
-		dGeomSetBody (obj[i].geom[k],obj[i].body);
-		dGeomSetOffsetPosition (obj[i].geom[k],
-			  dpos[k][0]-m.c[0],
-			  dpos[k][1]-m.c[1],
-			  dpos[k][2]-m.c[2]);
-		dGeomSetOffsetRotation(obj[i].geom[k], drot[k]);
-      }
-      dMassTranslate (&m,-m.c[0],-m.c[1],-m.c[2]);
-	  dBodySetMass (obj[i].body,&m);
-		
     }
     else if (cmd == 'x') {
       dGeomID g2[GPB];		// encapsulated geometries
@@ -355,21 +296,19 @@ static void command (int cmd)
 
 	// set the transformation (adjust the mass too)
 	dGeomSetPosition (g2[k],dpos[k][0],dpos[k][1],dpos[k][2]);
+	dMassTranslate (&m2,dpos[k][0],dpos[k][1],dpos[k][2]);
 	dMatrix3 Rtx;
 	dRFromAxisAndAngle (Rtx,dRandReal()*2.0-1.0,dRandReal()*2.0-1.0,
 			    dRandReal()*2.0-1.0,dRandReal()*10.0-5.0);
 	dGeomSetRotation (g2[k],Rtx);
 	dMassRotate (&m2,Rtx);
 
-	// Translation *after* rotation
-	dMassTranslate (&m2,dpos[k][0],dpos[k][1],dpos[k][2]);
-
 	// add to the total mass
 	dMassAdd (&m,&m2);
       }
 
       // move all encapsulated objects so that the center of mass is (0,0,0)
-      for (k=0; k<GPB; k++) {
+      for (k=0; k<2; k++) {
 	dGeomSetPosition (g2[k],
 			  dpos[k][0]-m.c[0],
 			  dpos[k][1]-m.c[1],
@@ -378,10 +317,9 @@ static void command (int cmd)
       dMassTranslate (&m,-m.c[0],-m.c[1],-m.c[2]);
     }
 
-    if (!setBody)
-     for (k=0; k < GPB; k++) {
+    for (k=0; k < GPB; k++) {
       if (obj[i].geom[k]) dGeomSetBody (obj[i].geom[k],obj[i].body);
-     }
+    }
 
     dBodySetMass (obj[i].body,&m);
   }
@@ -465,16 +403,7 @@ void drawGeom (dGeomID g, const dReal *pos, const dReal *R, int show_aabb)
     dMULTIPLY0_333 (actual_R,R,R2);
     drawGeom (g2,actual_pos,actual_R,0);
   }
-  if (show_body) {
-    dBodyID body = dGeomGetBody(g);
-    if (body) {
-      const dReal *bodypos = dBodyGetPosition (body); 
-      const dReal *bodyr = dBodyGetRotation (body); 
-      dReal bodySides[3] = { 0.1, 0.1, 0.1 };
-      dsSetColorAlpha(0,1,0,1);
-      dsDrawBox(bodypos,bodyr,bodySides); 
-    }
-  }
+
   if (show_aabb) {
     // draw the bounding box for this geom
     dReal aabb[6];
@@ -546,21 +475,13 @@ int main (int argc, char **argv)
     }
 
   // create world
-  dInitODE();
+
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
   contactgroup = dJointGroupCreate (0);
   dWorldSetGravity (world,0,0,-0.5);
   dWorldSetCFM (world,1e-5);
   dWorldSetAutoDisableFlag (world,1);
-
-#if 1
-
-  dWorldSetAutoDisableAverageSamplesCount( world, 10 );
-
-#endif
-
-
   dWorldSetContactMaxCorrectingVel (world,0.1);
   dWorldSetContactSurfaceLayer (world,0.001);
   dCreatePlane (space,0,0,1,0);
@@ -572,6 +493,6 @@ int main (int argc, char **argv)
   dJointGroupDestroy (contactgroup);
   dSpaceDestroy (space);
   dWorldDestroy (world);
-  dCloseODE();
+
   return 0;
 }

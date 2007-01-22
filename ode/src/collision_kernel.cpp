@@ -38,10 +38,6 @@ for geometry objects
 #include "collision_transform.h"
 #include "collision_trimesh_internal.h"
 
-#if dTRIMESH_GIMPACT
-#include <GIMPACT/gimpact.h>
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(disable:4291)  // for VC++, no complaints about "no matching operator delete found"
 #endif
@@ -184,7 +180,7 @@ static void initColliders()
   setCollider (dRayClass,dCapsuleClass,&dCollideRayCapsule);
   setCollider (dRayClass,dPlaneClass,&dCollideRayPlane);
   setCollider (dRayClass,dCylinderClass,&dCollideRayCylinder);
-#if dTRIMESH_ENABLED
+#ifdef dTRIMESH_ENABLED
   setCollider (dTriMeshClass,dSphereClass,&dCollideSTL);
   setCollider (dTriMeshClass,dBoxClass,&dCollideBTL);
   setCollider (dTriMeshClass,dRayClass,&dCollideRTL);
@@ -214,7 +210,7 @@ static void initColliders()
   setCollider (dHeightfieldClass,dCapsuleClass,&dCollideHeightfield);
   setCollider (dHeightfieldClass,dCylinderClass,&dCollideHeightfield);
   setCollider (dHeightfieldClass,dConvexClass,&dCollideHeightfield);
-#if dTRIMESH_ENABLED
+#ifdef dTRIMESH_ENABLED
   setCollider (dHeightfieldClass,dTriMeshClass,&dCollideHeightfield);
 #endif
 //<-- dHeightfield Collision
@@ -567,42 +563,12 @@ const dReal * dGeomGetPosition (dxGeom *g)
 }
 
 
-void dGeomCopyPosition(dxGeom *g, dVector3 pos)
-{
-  dAASSERT (g);
-  dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
-  g->recomputePosr();
-  const dReal* src = g->final_posr->pos;
-  pos[0] = src[0];
-  pos[1] = src[1];
-  pos[2] = src[2];
-}
-
-
 const dReal * dGeomGetRotation (dxGeom *g)
 {
   dAASSERT (g);
   dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
   g->recomputePosr();
   return g->final_posr->R;
-}
-
-
-void dGeomCopyRotation(dxGeom *g, dMatrix3 R)
-{
-  dAASSERT (g);
-  dUASSERT (g->gflags & GEOM_PLACEABLE,"geom must be placeable");
-  g->recomputePosr();
-  const dReal* src = g->final_posr->R;
-  R[0]  = src[0];
-  R[1]  = src[1];
-  R[2]  = src[2];
-  R[4]  = src[4];
-  R[5]  = src[5];
-  R[6]  = src[6];
-  R[8]  = src[8];
-  R[9]  = src[9];
-  R[10] = src[10];
 }
 
 
@@ -982,24 +948,6 @@ const dReal * dGeomGetOffsetPosition (dxGeom *g)
   return OFFSET_POSITION_ZERO;
 }
 
-void dGeomCopyOffsetPosition (dxGeom *g, dVector3 pos)
-{
-  dAASSERT (g);
-  if (g->offset_posr)
-  {
-    const dReal* src = g->offset_posr->pos;
-    pos[0] = src[0];
-	 pos[1] = src[1];
-	 pos[2] = src[2];
-  }
-  else
-  {
-    pos[0] = 0;
-	 pos[1] = 0;
-	 pos[2] = 0;
-  }
-}
-
 static const dMatrix3 OFFSET_ROTATION_ZERO = 
 { 
 	1.0f, 0.0f, 0.0f, 0.0f, 
@@ -1017,36 +965,6 @@ const dReal * dGeomGetOffsetRotation (dxGeom *g)
   return OFFSET_ROTATION_ZERO;
 }
 
-void dGeomCopyOffsetRotation (dxGeom *g, dMatrix3 R)
-{
-	dAASSERT (g);
-	if (g->offset_posr)
-	{
-		const dReal* src = g->final_posr->R;
-		R[0]  = src[0];
-		R[1]  = src[1];
-		R[2]  = src[2];
-		R[4]  = src[4];
-		R[5]  = src[5];
-		R[6]  = src[6];
-		R[8]  = src[8];
-		R[9]  = src[9];
-		R[10] = src[10];
-	}
-	else
-	{
-		R[0]  = OFFSET_ROTATION_ZERO[0];
-		R[1]  = OFFSET_ROTATION_ZERO[1];
-		R[2]  = OFFSET_ROTATION_ZERO[2];
-		R[4]  = OFFSET_ROTATION_ZERO[4];
-		R[5]  = OFFSET_ROTATION_ZERO[5];
-		R[6]  = OFFSET_ROTATION_ZERO[6];
-		R[8]  = OFFSET_ROTATION_ZERO[8];
-		R[9]  = OFFSET_ROTATION_ZERO[9];
-		R[10] = OFFSET_ROTATION_ZERO[10];
-	}
-}
-
 void dGeomGetOffsetQuaternion (dxGeom *g, dQuaternion result)
 {
   dAASSERT (g);
@@ -1062,30 +980,12 @@ void dGeomGetOffsetQuaternion (dxGeom *g, dQuaternion result)
 }
 
 //****************************************************************************
-// initialization and shutdown routines - allocate and initialize data,
-// cleanup before exiting
-
-extern void opcode_collider_cleanup();
-
-void dInitODE()
-{
-#if dTRIMESH_ENABLED && dTRIMESH_GIMPACT
-	gimpact_init();
-#endif
-}
+// here is where we deallocate any memory that has been globally
+// allocated, or free other global resources.
 
 void dCloseODE()
 {
   colliders_initialized = 0;
   num_user_classes = 0;
   dClearPosrCache();
-
-#if dTRIMESH_ENABLED && dTRIMESH_GIMPACT
-  gimpact_terminate();
-#endif
-
-#if dTRIMESH_ENABLED && dTRIMESH_OPCODE
-  // Free up static allocations in opcode
-  opcode_collider_cleanup();
-#endif
 }

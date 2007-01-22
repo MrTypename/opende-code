@@ -13,8 +13,8 @@ ifeq ($(CONFIG),DebugDLL)
   CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -D "WIN32" -I "../../include"
   CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/DebugDLL/ode.dll ../../lib/DebugDLL/drawstuff.dll -luser32 -lwinmm -lgdi32 -lopengl32 -lglu32
-  LDDEPS := ../../lib/DebugDLL/ode.dll ../../lib/DebugDLL/drawstuff.dll
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/DebugDLL/ode.dll ../../lib/DebugDLL/drawstuff.lib -luser32 -lwinmm -lgdi32 -lopengl32 -lglu32
+  LDDEPS := ../../lib/DebugDLL/ode.dll ../../lib/DebugDLL/drawstuff.lib
   TARGET := test_plane2d.exe
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
@@ -27,8 +27,8 @@ ifeq ($(CONFIG),ReleaseDLL)
   CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -D "WIN32" -I "../../include"
   CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/ReleaseDLL/ode.dll ../../lib/ReleaseDLL/drawstuff.dll -luser32 -lwinmm -lgdi32 -lopengl32 -lglu32
-  LDDEPS := ../../lib/ReleaseDLL/ode.dll ../../lib/ReleaseDLL/drawstuff.dll
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/ReleaseDLL/ode.dll ../../lib/ReleaseDLL/drawstuff.lib -luser32 -lwinmm -lgdi32 -lopengl32 -lglu32
+  LDDEPS := ../../lib/ReleaseDLL/ode.dll ../../lib/ReleaseDLL/drawstuff.lib
   TARGET := test_plane2d.exe
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
@@ -67,15 +67,8 @@ OBJECTS := \
 RESOURCES := \
 	$(OBJDIR)/resources.res \
 
-MKDIR_TYPE := msdos
 CMD := $(subst \,\\,$(ComSpec)$(COMSPEC))
 ifeq (,$(CMD))
-  MKDIR_TYPE := posix
-endif
-ifeq (/bin/sh.exe,$(SHELL))
-  MKDIR_TYPE := posix
-endif
-ifeq ($(MKDIR_TYPE),posix)
   CMD_MKBINDIR := mkdir -p $(BINDIR)
   CMD_MKLIBDIR := mkdir -p $(LIBDIR)
   CMD_MKOUTDIR := mkdir -p $(OUTDIR)

@@ -1487,10 +1487,9 @@ static void start()
   printf ("To drop another object, press:\n");
   printf ("   b for box.\n");
   printf ("   s for sphere.\n");
-  printf ("   y for cylinder.\n");
   printf ("   c for capsule.\n");
   printf ("   x for a composite object.\n");
-  printf ("   m for a trimesh.\n");
+  printf ("   m for a trimesh (EXPERIMENTAL).\n");
   printf ("To select an object, press space.\n");
   printf ("To disable the selected object, press d.\n");
   printf ("To enable the selected object, press e.\n");
@@ -1516,7 +1515,8 @@ static void command (int cmd)
   dMass m;
 
   cmd = locase (cmd);
-  if (cmd == 'b' || cmd == 's' || cmd == 'c' || cmd == 'x' || cmd == 'm' || cmd == 'y' ) {
+  if (cmd == 'b' || cmd == 's' || cmd == 'c' || cmd == 'x' || cmd == 'm'
+      /* || cmd == 'l' */) {
     if (num < NUM) {
       i = num;
       num++;
@@ -1565,12 +1565,15 @@ static void command (int cmd)
       dMassSetCapsule (&m,DENSITY,3,sides[0],sides[1]);
       obj[i].geom[0] = dCreateCapsule (space,sides[0],sides[1]);
     }
-    else if (cmd == 'y') {
+/*
+    // cylinder option not yet implemented
+    else if (cmd == 'l') {
       sides[1] *= 0.5;
-      dMassSetCylinder (&m,DENSITY,3,sides[0],sides[1]);
+      dMassSetCapsule (&m,DENSITY,3,sides[0],sides[1]);
       obj[i].geom[0] = dCreateCylinder (space,sides[0],sides[1]);
     }
-	else if (cmd == 's') {
+*/
+    else if (cmd == 's') {
       sides[0] *= 0.5;
       dMassSetSphere (&m,DENSITY,sides[0]);
       obj[i].geom[0] = dCreateSphere (space,sides[0]);
@@ -1582,10 +1585,9 @@ static void command (int cmd)
       obj[i].geom[0] = dCreateTriMesh(space, new_tmdata, 0, 0, 0);
 
       // remember the mesh's dTriMeshDataID on its userdata for convenience.
-      dGeomSetData(obj[i].geom[0], new_tmdata);
+      dGeomSetData(obj[i].geom[0], new_tmdata);      
 
-	  dMassSetTrimesh( &m, DENSITY, obj[i].geom[0] );
-//    dMassSetBox (&m,DENSITY,sides[0],sides[1],sides[2]);
+      dMassSetBox (&m,DENSITY,sides[0],sides[1],sides[2]);
     }
     else if (cmd == 'x') {
       dGeomID g2[GPB];		// encapsulated geometries
@@ -1695,12 +1697,14 @@ void drawGeom (dGeomID g, const dReal *pos, const dReal *R, int show_aabb)
     dGeomCapsuleGetParams (g,&radius,&length);
     dsDrawCapsule (pos,R,length,radius);
   }
+/*
+  // cylinder option not yet implemented
   else if (type == dCylinderClass) {
     dReal radius,length;
     dGeomCylinderGetParams (g,&radius,&length);
     dsDrawCylinder (pos,R,length,radius);
   }
-
+*/
   else if (type == dGeomTransformClass) {
     dGeomID g2 = dGeomTransformGetGeom (g);
     const dReal *pos2 = dGeomGetPosition (g2);
@@ -1734,19 +1738,18 @@ void drawGeom (dGeomID g, const dReal *pos, const dReal *R, int show_aabb)
 // set previous transformation matrix for trimesh
 void setCurrentTransform(dGeomID geom)
 {
+ const dTriMeshDataID TriMeshData = static_cast<dTriMeshDataID>(dGeomGetData(geom));
  const dReal* Pos = dGeomGetPosition(geom);
  const dReal* Rot = dGeomGetRotation(geom);
 
- const dReal Transform[16] = 
+ const double Transform[16] = 
  {
    Rot[0], Rot[4], Rot[8],  0,
    Rot[1], Rot[5], Rot[9],  0,
    Rot[2], Rot[6], Rot[10], 0,
    Pos[0], Pos[1], Pos[2],  1
  };
-
- dGeomTriMeshSetLastTransform( geom, *(dMatrix4*)(&Transform) );
-
+ dGeomTriMeshDataSet(TriMeshData, TRIMESH_LAST_TRANSFORMATION, (void *)Transform);
 }
 
 
@@ -1833,10 +1836,14 @@ static void simLoop (int pause)
 
 		  // Flip to other matrix.
 		  obj[i].last_matrix_index = !obj[i].last_matrix_index;
+          
+          dTriMeshDataID TriMeshData = dGeomTriMeshGetTriMeshDataID( obj[i].geom[j] );
+          
+		  // Apply the 'other' matrix which is the oldest.
+		  dGeomTriMeshDataSet( TriMeshData, TRIMESH_LAST_TRANSFORMATION,
+				(void *)( obj[i].matrix_dblbuff + ( obj[i].last_matrix_index * 16 ) ) );
 
-		  dGeomTriMeshSetLastTransform( obj[i].geom[j], 
-			  *(dMatrix4*)( obj[i].matrix_dblbuff + obj[i].last_matrix_index * 16 ) );
-  
+
         } else {
           drawGeom (obj[i].geom[j],0,0,show_aabb);
         }
@@ -1900,7 +1907,7 @@ int main (int argc, char **argv)
     }
 
   // create world
-  dInitODE();
+
   world = dWorldCreate();
  
   space = dSimpleSpaceCreate(0);
@@ -1937,6 +1944,6 @@ int main (int argc, char **argv)
   dJointGroupDestroy (contactgroup);
   dSpaceDestroy (space);
   dWorldDestroy (world);
-  dCloseODE();
+
   return 0;
 }

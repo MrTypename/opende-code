@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="drawstuff"
-	ProjectGUID="{C70B0E8C-3A7A-E047-9C15-0F614476F771}"
+	ProjectGUID="{80F623E3-171F-F542-A397-1C630EBDD438}"
 	RootNamespace="drawstuff"
 	Keyword="Win32Proj"
 	>
@@ -18,8 +18,8 @@
 		<Configuration
 			Name="DebugDLL|Win32"
 			OutputDirectory="../../lib/DebugDLL"
-			IntermediateDirectory="obj/drawstuff/DebugDLL"
-			ConfigurationType="2"
+			IntermediateDirectory="obj/DebugDLL"
+			ConfigurationType="4"
 			CharacterSet="2"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../include"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;DS_DLL;USRDLL"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,16 +62,8 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib opengl32.lib glu32.lib winmm.lib gdi32.lib"
-				OutputFile="$(OutDir)/drawstuff.dll"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../lib/DebugDLL"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/drawstuff.pdb"
-				SubSystem="2"
-				ImportLibrary="../../lib/DebugDLL/drawstuff.lib"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/drawstuff.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -101,8 +93,8 @@
 		<Configuration
 			Name="ReleaseDLL|Win32"
 			OutputDirectory="../../lib/ReleaseDLL"
-			IntermediateDirectory="obj/drawstuff/ReleaseDLL"
-			ConfigurationType="2"
+			IntermediateDirectory="obj/ReleaseDLL"
+			ConfigurationType="4"
 			CharacterSet="2"
 			>
 			<Tool
@@ -122,17 +114,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				OmitFramePointers="true"
+				Optimization="0"
 				AdditionalIncludeDirectories="../../include"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;DS_DLL;USRDLL"
-				StringPooling="true"
-				RuntimeLibrary="2"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -145,17 +137,8 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib opengl32.lib glu32.lib winmm.lib gdi32.lib"
-				OutputFile="$(OutDir)/drawstuff.dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../lib/ReleaseDLL"
-				GenerateDebugInformation="false"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				ImportLibrary="../../lib/ReleaseDLL/drawstuff.lib"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/drawstuff.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -185,7 +168,7 @@
 		<Configuration
 			Name="DebugLib|Win32"
 			OutputDirectory="../../lib/DebugLib"
-			IntermediateDirectory="obj/drawstuff/DebugLib"
+			IntermediateDirectory="obj/DebugLib"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -208,7 +191,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../include"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;DS_LIB"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -260,7 +243,7 @@
 		<Configuration
 			Name="ReleaseLib|Win32"
 			OutputDirectory="../../lib/ReleaseLib"
-			IntermediateDirectory="obj/drawstuff/ReleaseLib"
+			IntermediateDirectory="obj/ReleaseLib"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -281,17 +264,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				OmitFramePointers="true"
+				Optimization="0"
 				AdditionalIncludeDirectories="../../include"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;DS_LIB"
-				StringPooling="true"
-				RuntimeLibrary="2"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

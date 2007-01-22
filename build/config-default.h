@@ -8,26 +8,16 @@
  *   ODE to modify the behavior of the library.
  *
  *   dSINGLE/dDOUBLE   - force ODE to use single-precision (float)
- *                       or double-precision (double) for numbers.
- *                       Only one should be defined.
+ *                       or double-precision (double) for numbers
  *
  *   dTRIMESH_ENABLED  - enable/disable trimesh support
- *   dTRIMESH_OPCODE   - use the OPCODE trimesh engine
- *   dTRIMESH_GIMPACT  - use the GIMPACT trimesh engine
  *
- *   dUSE_MALLOC_FOR_ALLOCA (experimental)- 
- *                       Use malloc() instead of alloca(). Slower, 
- *                       but allows for larger systems and more 
- *                       graceful out-of-memory handling.
  ******************************************************************/
 
-#define dSINGLE
-/* #define dDOUBLE */
+#define dSINGLE 1
 
 #define dTRIMESH_ENABLED 1
-#define dTRIMESH_OPCODE 1
 
-/* #define dUSE_MALLOC_FOR_ALLOCA */
 
 
 /******************************************************************
@@ -38,13 +28,7 @@
  ******************************************************************/
 
 /* Try to identify the platform */
-#if defined(_XENON)
-  #define ODE_PLATFORM_XBOX360
-#elif defined(SN_TARGET_PSP_HW)
-  #define ODE_PLATFORM_PSP
-#elif defined(SN_TARGET_PS3)
-  #define ODE_PLATFORM_PS3
-#elif defined(_MSC_VER) || defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__CYGWIN32__) || defined(__MINGW32__)
   #define ODE_PLATFORM_WINDOWS
 #elif defined(__linux__)
   #define ODE_PLATFORM_LINUX
@@ -86,13 +70,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <malloc.h>
 #include <math.h>
 #include <string.h>
 #include <float.h>
-
-#if !defined(ODE_PLATFORM_PS3)
-  #include <malloc.h>
-#endif
 
 #if !defined(ODE_PLATFORM_WINDOWS)
   #include <alloca.h>
@@ -120,7 +101,7 @@
 	#define ODE_INFINITY8 (__ode_huge_val.__d)
 #endif
 
-#ifdef dSINGLE
+#if dSINGLE
 	#define dInfinity ODE_INFINITY4
 	#define dEpsilon  FLT_EPSILON
 #else

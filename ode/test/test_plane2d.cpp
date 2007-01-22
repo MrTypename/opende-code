@@ -31,8 +31,8 @@ static dJointGroup
 static void     cb_start ()
 /*************************/
 {
-    static float    xyz[3] = { 0.5f*STAGE_SIZE, 0.5f*STAGE_SIZE, 0.65f*STAGE_SIZE};
-    static float    hpr[3] = { 90.0f, -90.0f, 0 };
+    static float    xyz[3] = { 0.5*STAGE_SIZE, 0.5*STAGE_SIZE, 0.65*STAGE_SIZE};
+    static float    hpr[3] = { 90, -90, 0 };
 
     dsSetViewpoint (xyz, hpr);
 }
@@ -74,8 +74,8 @@ static void     track_to_pos (dBody &body, dJointID joint_id,
                               dReal target_x, dReal target_y)
 /************************************************************************/
 {
-    dReal  curr_x = body.getPosition()[0];
-    dReal  curr_y = body.getPosition()[1];
+    double  curr_x = body.getPosition()[0];
+    double  curr_y = body.getPosition()[1];
 
     dJointSetPlane2DXParam (joint_id, dParamVel, 1 * (target_x - curr_x));
     dJointSetPlane2DYParam (joint_id, dParamVel, 1 * (target_y - curr_y));
@@ -88,13 +88,14 @@ static void     cb_sim_step (int pause)
 {
     if (! pause)
     {
-        static dReal angle = 0;
+        static double
+                angle = 0;
 
-        angle += REAL( 0.01 );
+        angle += 0.01;
 
         track_to_pos (dyn_bodies[0], plane2d_joint_ids[0],
-            dReal( STAGE_SIZE/2 + STAGE_SIZE/2.0 * cos (angle) ),
-            dReal( STAGE_SIZE/2 + STAGE_SIZE/2.0 * sin (angle) ));
+            STAGE_SIZE/2 + STAGE_SIZE/2.0 * cos (angle),
+            STAGE_SIZE/2 + STAGE_SIZE/2.0 * sin (angle));
 
         /* double   f0 = 0.001; */
         /* for (int b = 0; b < N_BODIES; b ++) */
@@ -109,7 +110,7 @@ static void     cb_sim_step (int pause)
         for (int i = 0; i < n; i ++)
         {
             dSpaceCollide (coll_space_id, 0, &cb_near_collision);
-            dyn_world.step (dReal(TIME_STEP/n));
+            dyn_world.step (TIME_STEP/n);
             coll_contacts.empty ();
         }
     }
@@ -189,14 +190,12 @@ extern int      main
     dsFunctions drawstuff_functions;
 
 
-	 dInitODE();
-
     // dynamic world
 
-    dReal  cf_mixing;// = 1 / TIME_STEP * K_SPRING + K_DAMP;
-    dReal  err_reduct;// = TIME_STEP * K_SPRING * cf_mixing;
-    err_reduct = REAL( 0.5 );
-    cf_mixing = REAL( 0.001 );
+    double  cf_mixing = 1 / (TIME_STEP * K_SPRING + K_DAMP);
+    double  err_reduct = TIME_STEP * K_SPRING * cf_mixing;
+    err_reduct = 0.5;
+    cf_mixing = 0.001;
     dWorldSetERP (dyn_world.id (), err_reduct);
     dWorldSetCFM (dyn_world.id (), cf_mixing);
     dyn_world.setGravity (0, 0.0, -1.0);
@@ -207,24 +206,23 @@ extern int      main
     for (b = 0; b < N_BODIES; b ++)
     {
         int     l = (int) (1 + sqrt ((double) N_BODIES));
-        dReal  x = dReal( (0.5 + (b / l)) / l * STAGE_SIZE );
-        dReal  y = dReal( (0.5 + (b % l)) / l * STAGE_SIZE );
-        dReal  z = REAL( 1.0 ) + REAL( 0.1 ) * (dReal)drand48();
+        double  x = (0.5 + (b / l)) / l * STAGE_SIZE;
+        double  y = (0.5 + (b % l)) / l * STAGE_SIZE;
+        double  z = 1.0 + 0.1 * drand48 ();
 
-        bodies_sides[b][0] = dReal( 5 * (0.2 + 0.7*drand48()) / sqrt((double)N_BODIES) );
-        bodies_sides[b][1] = dReal( 5 * (0.2 + 0.7*drand48()) / sqrt((double)N_BODIES) );
+        bodies_sides[b][0] = 5 * (0.2 + 0.7*drand48()) / sqrt((double)N_BODIES);
+        bodies_sides[b][1] = 5 * (0.2 + 0.7*drand48()) / sqrt((double)N_BODIES);
         bodies_sides[b][2] = z;
 
         dyn_bodies[b].create (dyn_world);
         dyn_bodies[b].setPosition (x, y, z/2);
         dyn_bodies[b].setData ((void*) b);
         dBodySetLinearVel (dyn_bodies[b].id (),
-            dReal( 3 * (drand48 () - 0.5) ), 
-			dReal( 3 * (drand48 () - 0.5) ), 0);
+            3 * (drand48 () - 0.5), 3 * (drand48 () - 0.5), 0);
 
         dMass m;
         m.setBox (1, bodies_sides[b][0],bodies_sides[b][1],bodies_sides[b][2]);
-        m.adjust (REAL(0.1) * bodies_sides[b][0] * bodies_sides[b][1]);
+        m.adjust (0.1 * bodies_sides[b][0] * bodies_sides[b][1]);
         dyn_bodies[b].setMass (&m);
 
         plane2d_joint_ids[b] = dJointCreatePlane2D (dyn_world.id (), 0);
@@ -263,6 +261,5 @@ extern int      main
         dsSimulationLoop (argc, argv, 352,288,&drawstuff_functions);
     }
 
-	 dCloseODE();
     return 0;
 }

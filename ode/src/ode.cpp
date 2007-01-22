@@ -221,11 +221,6 @@ void dWorldCheck (dxWorld *w)
 
 //****************************************************************************
 // body
-dxWorld* dBodyGetWorld (dxBody* b)
-{
-  dAASSERT (b);
-  return b->world;
-}
 
 dxBody *dBodyCreate (dxWorld *w)
 {
@@ -235,8 +230,6 @@ dxBody *dBodyCreate (dxWorld *w)
   b->firstjoint = 0;
   b->flags = 0;
   b->geom = 0;
-  b->average_lvel_buffer = 0;
-  b->average_avel_buffer = 0;
   dMassSetParameters (&b->mass,1,0,0,0,1,1,1,0,0,0);
   dSetZero (b->invI,4*3);
   b->invI[0] = 1;
@@ -256,13 +249,9 @@ dxBody *dBodyCreate (dxWorld *w)
   w->nb++;
 
   // set auto-disable parameters
-  b->average_avel_buffer = b->average_lvel_buffer = 0; // no buffer at beginnin
   dBodySetAutoDisableDefaults (b);	// must do this after adding to world
   b->adis_stepsleft = b->adis.idle_steps;
   b->adis_timeleft = b->adis.idle_time;
-  b->average_counter = 0;
-  b->average_ready = 0; // average buffer not filled on the beginning
-  dBodySetAutoDisableAverageSamplesCount(b, b->adis.average_samples);
 
   return b;
 }
@@ -295,19 +284,6 @@ void dBodyDestroy (dxBody *b)
   }
   removeObjectFromList (b);
   b->world->nb--;
-
-  // delete the average buffers
-  if(b->average_lvel_buffer)
-  {
-	  delete[] (b->average_lvel_buffer);
-	  b->average_lvel_buffer = 0;
-  }
-  if(b->average_avel_buffer)
-  {
-	  delete[] (b->average_avel_buffer);
-	  b->average_avel_buffer = 0;
-  }
-
   delete b;
 }
 
@@ -415,25 +391,6 @@ const dReal * dBodyGetRotation (dBodyID b)
 }
 
 
-void dBodyCopyRotation (dBodyID b, dMatrix3 R)
-{
-	dAASSERT (b);
-	const dReal* src = b->posr.R;
-	R[0] = src[0];
-	R[1] = src[1];
-	R[2] = src[2];
-	R[3] = src[3];
-	R[4] = src[4];
-	R[5] = src[5];
-	R[6] = src[6];
-	R[7] = src[7];
-	R[8] = src[8];
-	R[9] = src[9];
-	R[10] = src[10];
-	R[11] = src[11];
-}
-
-
 const dReal * dBodyGetQuaternion (dBodyID b)
 {
   dAASSERT (b);
@@ -470,12 +427,6 @@ void dBodySetMass (dBodyID b, const dMass *mass)
 {
   dAASSERT (b && mass );
   dIASSERT(dMassCheck(mass));
-
-  // The centre of mass must be at the origin.
-  // Use dMassTranslate( mass, -mass->c[0], -mass->c[1], -mass->c[2] ) to correct it.
-  dUASSERT( fabs( mass->c[0] ) <= dEpsilon &&
-			fabs( mass->c[1] ) <= dEpsilon &&
-			fabs( mass->c[2] ) <= dEpsilon, "The centre of mass must be at the origin." )
 
   memcpy (&b->mass,mass,sizeof(dMass));
   if (dInvertPDMatrix (b->mass.I,b->invI,3)==0) {
@@ -815,7 +766,6 @@ void dBodyEnable (dBodyID b)
   b->flags &= ~dxBodyDisabled;
   b->adis_stepsleft = b->adis.idle_steps;
   b->adis_timeleft = b->adis.idle_time;
-  // no code for average-processing needed here
 }
 
 
@@ -853,66 +803,28 @@ int dBodyGetGravityMode (dBodyID b)
 dReal dBodyGetAutoDisableLinearThreshold (dBodyID b)
 {
 	dAASSERT(b);
-	return dSqrt (b->adis.linear_average_threshold);
+	return dSqrt (b->adis.linear_threshold);
 }
 
 
-void dBodySetAutoDisableLinearThreshold (dBodyID b, dReal linear_average_threshold)
+void dBodySetAutoDisableLinearThreshold (dBodyID b, dReal linear_threshold)
 {
 	dAASSERT(b);
-	b->adis.linear_average_threshold = linear_average_threshold * linear_average_threshold;
+	b->adis.linear_threshold = linear_threshold * linear_threshold;
 }
 
 
 dReal dBodyGetAutoDisableAngularThreshold (dBodyID b)
 {
 	dAASSERT(b);
-	return dSqrt (b->adis.angular_average_threshold);
+	return dSqrt (b->adis.angular_threshold);
 }
 
 
-void dBodySetAutoDisableAngularThreshold (dBodyID b, dReal angular_average_threshold)
+void dBodySetAutoDisableAngularThreshold (dBodyID b, dReal angular_threshold)
 {
 	dAASSERT(b);
-	b->adis.angular_average_threshold = angular_average_threshold * angular_average_threshold;
-}
-
-
-int dBodyGetAutoDisableAverageSamplesCount (dBodyID b)
-{
-	dAASSERT(b);
-	return b->adis.average_samples;
-}
-
-
-void dBodySetAutoDisableAverageSamplesCount (dBodyID b, unsigned int average_samples_count)
-{
-	dAASSERT(b);
-	b->adis.average_samples = average_samples_count;
-	// update the average buffers
-	if(b->average_lvel_buffer)
-	{
-		delete[] b->average_lvel_buffer;
-		b->average_lvel_buffer = 0;
-	}
-	if(b->average_avel_buffer)
-	{
-		delete[] b->average_avel_buffer;
-		b->average_avel_buffer = 0;
-	}
-	if(b->adis.average_samples > 0)
-	{
-		b->average_lvel_buffer = new dVector3[b->adis.average_samples];
-		b->average_avel_buffer = new dVector3[b->adis.average_samples];
-	}
-	else
-	{
-		b->average_lvel_buffer = 0;
-		b->average_avel_buffer = 0;
-	}
-	// new buffer is empty
-	b->average_counter = 0;
-	b->average_ready = 0;
+	b->adis.angular_threshold = angular_threshold * angular_threshold;
 }
 
 
@@ -961,8 +873,6 @@ void dBodySetAutoDisableFlag (dBodyID b, int do_auto_disable)
 		b->flags &= ~dxBodyDisabled;
 		b->adis.idle_steps = dWorldGetAutoDisableSteps(b->world);
 		b->adis.idle_time = dWorldGetAutoDisableTime(b->world);
-		// resetting the average calculations too
-		dBodySetAutoDisableAverageSamplesCount(b, dWorldGetAutoDisableAverageSamplesCount(b->world) );
 	}
 	else
 	{
@@ -1065,11 +975,6 @@ dxJoint * dJointCreateUniversal (dWorldID w, dJointGroupID group)
   return createJoint (w,group,&__duniversal_vtable);
 }
 
-dxJoint * dJointCreatePR (dWorldID w, dJointGroupID group)
-{
-  dAASSERT (w);
-  return createJoint (w,group,&__dPR_vtable);
-}
 
 dxJoint * dJointCreateFixed (dWorldID w, dJointGroupID group)
 {
@@ -1348,12 +1253,11 @@ dxWorld * dWorldCreate()
   #error dSINGLE or dDOUBLE must be defined
 #endif
 
+  w->adis.linear_threshold = REAL(0.001)*REAL(0.001);	// (magnitude squared)
+  w->adis.angular_threshold = REAL(0.001)*REAL(0.001);	// (magnitude squared)
   w->adis.idle_steps = 10;
   w->adis.idle_time = 0;
   w->adis_flag = 0;
-  w->adis.average_samples = 1;		// Default is 1 sample => Instantaneous velocity
-  w->adis.angular_average_threshold = REAL(0.01)*REAL(0.01);	// (magnitude squared)
-  w->adis.linear_average_threshold = REAL(0.01)*REAL(0.01);		// (magnitude squared)
 
   w->qs.num_iterations = 20;
   w->qs.w = REAL(1.3);
@@ -1372,17 +1276,7 @@ void dWorldDestroy (dxWorld *w)
   dxBody *nextb, *b = w->firstbody;
   while (b) {
     nextb = (dxBody*) b->next;
-    if(b->average_lvel_buffer)
-    {
-      delete[] (b->average_lvel_buffer);
-      b->average_lvel_buffer = 0;
-    }
-    if(b->average_avel_buffer)
-    {
-      delete[] (b->average_avel_buffer);
-      b->average_avel_buffer = 0;
-    }
-    dBodyDestroy(b); // calling here dBodyDestroy for correct destroying! (i.e. the average buffers)
+    delete b;
     b = nextb;
   }
   dxJoint *nextj, *j = w->firstjoint;
@@ -1486,42 +1380,28 @@ void dWorldImpulseToForce (dWorldID w, dReal stepsize,
 dReal dWorldGetAutoDisableLinearThreshold (dWorldID w)
 {
 	dAASSERT(w);
-	return dSqrt (w->adis.linear_average_threshold);
+	return dSqrt (w->adis.linear_threshold);
 }
 
 
-void dWorldSetAutoDisableLinearThreshold (dWorldID w, dReal linear_average_threshold)
+void dWorldSetAutoDisableLinearThreshold (dWorldID w, dReal linear_threshold)
 {
 	dAASSERT(w);
-	w->adis.linear_average_threshold = linear_average_threshold * linear_average_threshold;
+	w->adis.linear_threshold = linear_threshold * linear_threshold;
 }
 
 
 dReal dWorldGetAutoDisableAngularThreshold (dWorldID w)
 {
 	dAASSERT(w);
-	return dSqrt (w->adis.angular_average_threshold);
+	return dSqrt (w->adis.angular_threshold);
 }
 
 
-void dWorldSetAutoDisableAngularThreshold (dWorldID w, dReal angular_average_threshold)
+void dWorldSetAutoDisableAngularThreshold (dWorldID w, dReal angular_threshold)
 {
 	dAASSERT(w);
-	w->adis.angular_average_threshold = angular_average_threshold * angular_average_threshold;
-}
-
-
-int dWorldGetAutoDisableAverageSamplesCount (dWorldID w)
-{
-	dAASSERT(w);
-	return w->adis.average_samples;
-}
-
-
-void dWorldSetAutoDisableAverageSamplesCount (dWorldID w, unsigned int average_samples_count)
-{
-	dAASSERT(w);
-	w->adis.average_samples = average_samples_count;
+	w->adis.angular_threshold = angular_threshold * angular_threshold;
 }
 
 

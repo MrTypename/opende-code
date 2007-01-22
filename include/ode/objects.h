@@ -287,16 +287,12 @@ ODE_API void dWorldStepFast1(dWorldID, dReal stepsize, int maxiterations);
  *   @li It has been idle for a given number of simulation steps.
  *   @li It has also been idle for a given amount of simulation time.
  *
- * A body is considered to be idle when the magnitudes of both its
- * linear average velocity and angular average velocity are below given thresholds.
- * The sample size for the average defaults to one and can be disabled by setting
- * to zero with 
+ * A body is considered to be idle when the magnitudes of both its linear velocity
+ * and angular velocity are below given thresholds.
  *
- * Thus, every body has six auto-disable parameters: an enabled flag, a idle step
- * count, an idle time, linear/angular average velocity thresholds, and the
- * average samples count.
- *
- * Newly created bodies get these parameters from world.
+ * Thus, every body has five auto-disable parameters: an enabled flag, a idle step
+ * count, an idle time, and linear/angular velocity thresholds. Newly created bodies
+ * get these parameters from world.
  */
 
 /**
@@ -338,49 +334,6 @@ ODE_API dReal dWorldGetAutoDisableAngularThreshold (dWorldID);
  * @ingroup disable
  */
 ODE_API void dWorldSetAutoDisableAngularThreshold (dWorldID, dReal angular_threshold);
-
-/**
- * @brief Get auto disable linear average threshold for newly created bodies.
- * @ingroup disable
- * @return the threshold
- */
-ODE_API dReal dWorldGetAutoDisableLinearAverageThreshold (dWorldID);
-
-/**
- * @brief Set auto disable linear average threshold for newly created bodies.
- * @param linear_average_threshold default is 0.01
- * @ingroup disable
- */
-ODE_API void  dWorldSetAutoDisableLinearAverageThreshold (dWorldID, dReal linear_average_threshold);
-
-/**
- * @brief Get auto disable angular average threshold for newly created bodies.
- * @ingroup disable
- * @return the threshold
- */
-ODE_API dReal dWorldGetAutoDisableAngularAverageThreshold (dWorldID);
-
-/**
- * @brief Set auto disable angular average threshold for newly created bodies.
- * @param linear_average_threshold default is 0.01
- * @ingroup disable
- */
-ODE_API void dWorldSetAutoDisableAngularAverageThreshold (dWorldID, dReal angular_average_threshold);
-
-/**
- * @brief Get auto disable sample count for newly created bodies.
- * @ingroup disable
- * @return number of samples used
- */
-ODE_API int dWorldGetAutoDisableAverageSamplesCount (dWorldID);
-
-/**
- * @brief Set auto disable average sample count for newly created bodies.
- * @ingroup disable
- * @param average_samples_count Default is 1, meaning only instantaneous velocity is used.
- * Set to zero to disable sampling and thus prevent any body from auto-disabling.
- */
-ODE_API void dWorldSetAutoDisableAverageSamplesCount (dWorldID, unsigned int average_samples_count );
 
 /**
  * @brief Get auto disable steps for newly created bodies.
@@ -461,50 +414,35 @@ ODE_API void dWorldSetAutoDisableFlag (dWorldID, int do_auto_disable);
 
 
 /**
- * @brief Get auto disable linear average threshold.
+ * @brief Get auto disable linear threshold.
  * @ingroup bodies
  * @return the threshold
  */
 ODE_API dReal dBodyGetAutoDisableLinearThreshold (dBodyID);
 
 /**
- * @brief Set auto disable linear average threshold.
+ * @brief Set auto disable linear threshold.
  * @ingroup bodies
  * @return the threshold
  */
-ODE_API void  dBodySetAutoDisableLinearThreshold (dBodyID, dReal linear_average_threshold);
+ODE_API void  dBodySetAutoDisableLinearThreshold (dBodyID, dReal linear_threshold);
 
 /**
- * @brief Get auto disable angular average threshold.
+ * @brief Get auto disable angular threshold.
  * @ingroup bodies
  * @return the threshold
  */
 ODE_API dReal dBodyGetAutoDisableAngularThreshold (dBodyID);
 
 /**
- * @brief Set auto disable angular average threshold.
+ * @brief Set auto disable angular threshold.
  * @ingroup bodies
  * @return the threshold
  */
-ODE_API void  dBodySetAutoDisableAngularThreshold (dBodyID, dReal angular_average_threshold);
+ODE_API void  dBodySetAutoDisableAngularThreshold (dBodyID, dReal angular_threshold);
 
 /**
- * @brief Get auto disable average size (samples count).
- * @ingroup bodies
- * @return the nr of steps/size.
- */
-ODE_API int dBodyGetAutoDisableAverageSamplesCount (dBodyID);
-
-/**
- * @brief Set auto disable average buffer size (average steps).
- * @ingroup bodies
- * @param average_samples_count the nr of samples to review.
- */
-ODE_API void dBodySetAutoDisableAverageSamplesCount (dBodyID, unsigned int average_samples_count);
-
-
-/**
- * @brief Get auto steps a body must be thought of as idle to disable
+ * @brief Get auto disable steps.
  * @ingroup bodies
  * @return the nr of steps
  */
@@ -554,13 +492,6 @@ ODE_API void dBodySetAutoDisableFlag (dBodyID, int do_auto_disable);
 ODE_API void  dBodySetAutoDisableDefaults (dBodyID);
 
 
-/**
- * @brief Retrives the world attached to te given body.
- * @remarks
- * 
- * @ingroup bodies
- */
-ODE_API dWorldID dBodyGetWorld (dBodyID);
 
 /**
  * @brief Create a body in given world.
@@ -664,17 +595,6 @@ ODE_API void dBodyCopyPosition (dBodyID body, dVector3 pos);
  * @return pointer to a 4x3 rotation matrix.
  */
 ODE_API const dReal * dBodyGetRotation   (dBodyID);
-
-
-/**
- * @brief Copy the rotation of a body.
- * @ingroup bodies
- * @param body   the body to query
- * @param R      a copy of the rotation matrix
- * @sa dBodyGetRotation
- */
-ODE_API void dBodyCopyRotation (dBodyID, dMatrix3 R);
-
 
 /**
  * @brief Get the rotation of a body.
@@ -1104,14 +1024,6 @@ ODE_API dJointID dJointCreateHinge2 (dWorldID, dJointGroupID);
 ODE_API dJointID dJointCreateUniversal (dWorldID, dJointGroupID);
 
 /**
- * @brief Create a new joint of the PR (Prismatic and Rotoide) type.
- * @ingroup joints
- * @param dJointGroupID set to 0 to allocate the joint normally.
- * If it is nonzero the joint is allocated in the given joint group.
- */
-ODE_API dJointID dJointCreatePR (dWorldID, dJointGroupID);
-
-/**
  * @brief Create a new joint of the fixed type.
  * @ingroup joints
  * @param dJointGroupID set to 0 to allocate the joint normally.
@@ -1385,44 +1297,6 @@ ODE_API void dJointSetUniversalParam (dJointID, int parameter, dReal value);
  * @ingroup joints
  */
 ODE_API void dJointAddUniversalTorques(dJointID joint, dReal torque1, dReal torque2);
-
-
-/**
- * @brief set anchor
- * @ingroup joints
- */
-ODE_API void dJointSetPRAnchor (dJointID, dReal x, dReal y, dReal z);
-
-/**
- * @brief set the axis for the prismatic articulation
- * @ingroup joints
- */
-ODE_API void dJointSetPRAxis1 (dJointID, dReal x, dReal y, dReal z);
-
-/**
- * @brief set the axis for the rotoide articulation
- * @ingroup joints
- */
-ODE_API void dJointSetPRAxis2 (dJointID, dReal x, dReal y, dReal z);
-
-/**
- * @brief set joint parameter
- * @ingroup joints
- *
- * @note parameterX where X equal 2 refer to parameter for the rotoide articulation
- */
-ODE_API void dJointSetPRParam (dJointID, int parameter, dReal value);
-
-/**
- * @brief Applies the torque about the rotoide axis of the PR joint
- *
- * That is, it applies a torque with specified magnitude in the direction 
- * of the rotoide axis, to body 1, and with the same magnitude but in opposite
- * direction to body 2. This function is just a wrapper for dBodyAddTorque()}
- * @ingroup joints
- */
-ODE_API void dJointAddPRTorque (dJointID j, dReal torque);
-
 
 /**
  * @brief Call this on the fixed joint after it has been attached to
@@ -1714,19 +1588,6 @@ ODE_API void dJointGetUniversalAxis2 (dJointID, dVector3 result);
 ODE_API dReal dJointGetUniversalParam (dJointID, int parameter);
 
 /**
- * @brief Get both angles at the same time.
- * @ingroup joints
- *
- * @param joint   The universal joint for which we want to calculate the angles
- * @param angle1  The angle between the body1 and the axis 1
- * @param angle2  The angle between the body2 and the axis 2
- *
- * @note This function combine getUniversalAngle1 and getUniversalAngle2 together
- *       and try to avoid redundant calculation
- */
-ODE_API void dJointGetUniversalAngles (dJointID, dReal *angle1, dReal *angle2);
-
-/**
  * @brief Get angle
  * @ingroup joints
  */
@@ -1749,57 +1610,6 @@ ODE_API dReal dJointGetUniversalAngle1Rate (dJointID);
  * @ingroup joints
  */
 ODE_API dReal dJointGetUniversalAngle2Rate (dJointID);
-
-
-
-/**
- * @brief Get the joint anchor point, in world coordinates.
- * @return the point on body 1. If the joint is perfectly satisfied, 
- * this will be the same as the point on body 2.
- * @ingroup joints
- */
-ODE_API void dJointGetPRAnchor (dJointID, dVector3 result);
-
-/**
- * @brief Get the PR linear position (i.e. the prismatic's extension)
- *
- * When the axis is set, the current position of the attached bodies is
- * examined and that position will be the zero position.
- *
- * The position is the "oriented" length between the
- * position = (Prismatic axis) dot_product [(body1 + offset) - (body2 + anchor2)]
- *
- * @ingroup joints
- */
-ODE_API dReal dJointGetPRPosition (dJointID);
-
-/**
- * @brief Get the PR linear position's time derivative
- *
- * @ingroup joints
- */
-ODE_API dReal dJointGetPRPositionRate (dJointID);
-
-
-/**
- * @brief Get the prismatic axis
- * @ingroup joints
- */
-ODE_API void dJointGetPRAxis1 (dJointID, dVector3 result);
-
-/**
- * @brief Get the Rotoide axis
- * @ingroup joints
- */
-ODE_API void dJointGetPRAxis2 (dJointID, dVector3 result);
-
-/**
- * @brief get joint parameter
- * @ingroup joints
- */
-ODE_API dReal dJointGetPRParam (dJointID, int parameter);
-
-
 
 /**
  * @brief Get the number of angular axes that will be controlled by the
@@ -1922,8 +1732,6 @@ ODE_API int dAreConnected (dBodyID, dBodyID);
  * @brief Utility function
  * @return 1 if the two bodies are connected together by
  * a joint that does not have type @arg{joint_type}, otherwise return 0.
- * @param body1 A body to check.
- * @param body2 A body to check.
  * @param joint_type is a dJointTypeXXX constant.
  * This is useful for deciding whether to add contact joints between two bodies:
  * if they are already connected by non-contact joints then it may not be
@@ -1931,7 +1739,7 @@ ODE_API int dAreConnected (dBodyID, dBodyID);
  * bodies that already have contacts.
  * @ingroup joints
  */
-ODE_API int dAreConnectedExcluding (dBodyID body1, dBodyID body2, int joint_type);
+ODE_API int dAreConnectedExcluding (dBodyID, dBodyID, int joint_type);
 
 
 #ifdef __cplusplus

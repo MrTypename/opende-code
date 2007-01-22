@@ -119,7 +119,7 @@ unsigned int polygons[] = //Polygons for a cube (6 squares)
 #define NUM 100			// max number of objects
 #define DENSITY (5.0)		// density of all objects
 #define GPB 3			// maximum number of geometries per body
-#define MAX_CONTACTS 64		// maximum number of contact points per body
+#define MAX_CONTACTS 8		// maximum number of contact points per body
 
 
 // dynamics and collision objects
@@ -1707,7 +1707,6 @@ static void command (int cmd)
 			dMassSetSphere (&m,DENSITY,sides[0]);
 			obj[i].geom[0] = dCreateSphere (space,sides[0]);
 		}
-#ifdef dTRIMESH_ENABLED
 		else if (cmd == 'm')
 		{
 			dTriMeshDataID new_tmdata = dGeomTriMeshDataCreate();
@@ -1716,11 +1715,10 @@ static void command (int cmd)
 			obj[i].geom[0] = dCreateTriMesh(space, new_tmdata, 0, 0, 0);
 
 			// remember the mesh's dTriMeshDataID on its userdata for convenience.
-			dGeomSetData(obj[i].geom[0], new_tmdata);
+			dGeomSetData(obj[i].geom[0], new_tmdata);      
 
-			dMassSetTrimesh( &m, DENSITY, obj[i].geom[0] );
+			dMassSetBox (&m,DENSITY,sides[0],sides[1],sides[2]);
 		}
-#endif
 		else if (cmd == 'x')
 		{
 			dGeomID g2[GPB];		// encapsulated geometries
@@ -1891,16 +1889,10 @@ void drawGeom (dGeomID g, const dReal *pos, const dReal *R, int show_aabb)
 
 static void simLoop (int pause)
 {
-  int i,j;
-  
   dsSetColor (0,0,2);
-  
+  int i,j;
   dSpaceCollide (space,0,&nearCallback);
-  
-  //if (!pause) dWorldStep (world,0.05);
-  //if (!pause) dWorldQuickStep (world,0.05);
-  if (!pause) dWorldStepFast1 (world,0.05, 5);
-
+  if (!pause) dWorldQuickStep (world,0.02);
 
   if (write_world) {
     FILE *f = fopen ("state.dif","wt");
@@ -2022,11 +2014,12 @@ static void simLoop (int pause)
 				// Flip to other matrix.
 				obj[i].last_matrix_index = !obj[i].last_matrix_index;
 
+				dTriMeshDataID TriMeshData = dGeomTriMeshGetTriMeshDataID( obj[i].geom[j] );
+
 				// Apply the 'other' matrix which is the oldest.
-#ifdef dTRIMESH_ENABLED
-				dGeomTriMeshSetLastTransform( obj[i].geom[j], 
-					*(dMatrix4*)( obj[i].matrix_dblbuff + ( obj[i].last_matrix_index * 16 ) ) );
-#endif
+				dGeomTriMeshDataSet( TriMeshData, TRIMESH_LAST_TRANSFORMATION,
+					(void *)( obj[i].matrix_dblbuff + ( obj[i].last_matrix_index * 16 ) ) );
+
 			}
 			else
 			{
@@ -2068,22 +2061,16 @@ int main (int argc, char **argv)
 	}
 
 	// create world
-	dInitODE();
+
 	world = dWorldCreate();
 	space = dHashSpaceCreate (0);
 	contactgroup = dJointGroupCreate (0);
-	dWorldSetGravity (world,0,0,-0.05);
+	dWorldSetGravity (world,0,0,-0.5);
 	dWorldSetCFM (world,1e-5);
 	dWorldSetAutoDisableFlag (world,1);
 	dWorldSetContactMaxCorrectingVel (world,0.1);
 	dWorldSetContactSurfaceLayer (world,0.001);
 	memset (obj,0,sizeof(obj));
-
-#if 1
-
-  dWorldSetAutoDisableAverageSamplesCount( world, 1 );
-
-#endif
 
 	// base plane to catch overspill
 	dCreatePlane( space, 0, 0, 1, 0 );
@@ -2127,6 +2114,6 @@ int main (int argc, char **argv)
 	dJointGroupDestroy (contactgroup);
 	dSpaceDestroy (space);
 	dWorldDestroy (world);
-	dCloseODE();
+
 	return 0;
 }

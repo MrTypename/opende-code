@@ -126,6 +126,8 @@ void drawGeom (dGeomID g)
   const dReal *pos = dGeomGetPosition(g);
   const dReal *R   = dGeomGetRotation(g);
 
+  int i;
+
   int type = dGeomGetClass (g);
   if (type == dBoxClass)
   {
@@ -175,12 +177,10 @@ static void inspectJoints(void)
 
 static void simLoop (int pause)
 {
-  int i;
-
   double simstep = 0.005; // 5ms simulation steps
   double dt = dsElapsedTime();
   int nrofsteps = (int) ceilf(dt/simstep);
-  for (i=0; i<nrofsteps && !pause; i++)
+  for (int i=0; i<nrofsteps && !pause; i++)
   {
     dSpaceCollide (space,0,&nearCallback);
     dWorldQuickStep (world, simstep);
@@ -188,6 +188,7 @@ static void simLoop (int pause)
     inspectJoints();
   }
 
+  int i;
   for (i=0; i<SEGMCNT; i++)
   {
     float r=0,g=0,b=0.2;
@@ -216,6 +217,7 @@ static void simLoop (int pause)
 int main (int argc, char **argv)
 {
   dMass m;
+  dMatrix3 R;
 
   // setup pointers to drawstuff callback functions
   dsFunctions fn;
@@ -231,7 +233,6 @@ int main (int argc, char **argv)
   }
 
   // create world
-  dInitODE();
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
   contactgroup = dJointGroupCreate (0);
@@ -308,7 +309,7 @@ int main (int argc, char **argv)
 
   dSpaceDestroy(space);
   dWorldDestroy (world);
-  dCloseODE();
+
   return 0;
 }
 

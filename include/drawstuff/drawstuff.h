@@ -41,19 +41,6 @@ The user is able to click+drag in the main window to move the camera:
 #ifndef __DRAWSTUFF_H__
 #define __DRAWSTUFF_H__
 
-/* Define a DLL export symbol for those platforms that need it */
-#if defined(ODE_PLATFORM_WINDOWS)
-  #if defined(DS_DLL)
-    #define DS_API __declspec(dllexport)
-  #elif !defined(DS_LIB)
-    #define DS_DLL_API __declspec(dllimport)
-  #endif
-#endif
-    
-#if !defined(DS_API)
-  #define DS_API
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -92,7 +79,7 @@ typedef struct dsFunctions {
  * @param argv supports flags like '-notex' '-noshadow' '-pause'
  * @param fn Callback functions.
  */
-DS_API void dsSimulationLoop (int argc, char **argv,
+void dsSimulationLoop (int argc, char **argv,
 		       int window_width, int window_height,
 		       struct dsFunctions *fn);
 
@@ -102,7 +89,7 @@ DS_API void dsSimulationLoop (int argc, char **argv,
  * This function displays an error message then exit.
  * @param msg format strin, like printf, without the newline character.
  */
-DS_API void dsError (char *msg, ...);
+void dsError (char *msg, ...);
 
 /**
  * @brief exit with error message and core dump.
@@ -110,14 +97,14 @@ DS_API void dsError (char *msg, ...);
  * this functions tries to dump core or start the debugger.
  * @param msg format strin, like printf, without the newline character.
  */
-DS_API void dsDebug (char *msg, ...);
+void dsDebug (char *msg, ...);
 
 /**
  * @brief print log message
  * @ingroup drawstuff
  * @param msg format string, like printf, without the \n.
  */
-DS_API void dsPrint (char *msg, ...);
+void dsPrint (char *msg, ...);
 
 /**
  * @brief Sets the viewpoint
@@ -127,7 +114,7 @@ DS_API void dsPrint (char *msg, ...);
  * points along the x axis, pitch=0 is looking towards the horizon, and
  * roll 0 is "unrotated".
  */
-DS_API void dsSetViewpoint (float xyz[3], float hpr[3]);
+void dsSetViewpoint (float xyz[3], float hpr[3]);
 
 
 /**
@@ -136,7 +123,7 @@ DS_API void dsSetViewpoint (float xyz[3], float hpr[3]);
  * @param xyz position
  * @param hpr heading,pitch,roll.
  */
-DS_API void dsGetViewpoint (float xyz[3], float hpr[3]);
+void dsGetViewpoint (float xyz[3], float hpr[3]);
 
 /**
  * @brief Stop the simulation loop.
@@ -146,14 +133,14 @@ DS_API void dsGetViewpoint (float xyz[3], float hpr[3]);
  * user used the exit command. using this outside the loop will have no
  * effect.
  */
-DS_API void dsStop();
+void dsStop();
 
 /**
  * @brief Get the elapsed time (on wall-clock)
  * @ingroup drawstuff
  * It returns the nr of seconds since the last call to this function.
  */
-DS_API double dsElapsedTime();
+double dsElapsedTime();
 
 /**
  * @brief Toggle the rendering of textures.
@@ -165,7 +152,7 @@ DS_API double dsElapsedTime();
  * At the start of each frame, the texture is reset to none and the color is
  * reset to white.
  */
-DS_API void dsSetTexture (int texture_number);
+void dsSetTexture (int texture_number);
 
 /**
  * @brief Set the color with which geometry is drawn.
@@ -174,7 +161,7 @@ DS_API void dsSetTexture (int texture_number);
  * @param green Green component from 0 to 1
  * @param blue Blue component from 0 to 1
  */
-DS_API void dsSetColor (float red, float green, float blue);
+void dsSetColor (float red, float green, float blue);
 
 /**
  * @brief Set the color and transparency with which geometry is drawn.
@@ -182,7 +169,7 @@ DS_API void dsSetColor (float red, float green, float blue);
  * @param alpha Note that alpha transparency is a misnomer: it is alpha opacity.
  * 1.0 means fully opaque, and 0.0 means fully transparent.
  */
-DS_API void dsSetColorAlpha (float red, float green, float blue, float alpha);
+void dsSetColorAlpha (float red, float green, float blue, float alpha);
 
 /**
  * @brief Draw a box.
@@ -194,7 +181,7 @@ DS_API void dsSetColorAlpha (float red, float green, float blue, float alpha);
  *        [ R31 R32 R33 0 ]
  * @param sides[] is an array of x,y,z side lengths.
  */
-DS_API void dsDrawBox (const float pos[3], const float R[12], const float sides[3]);
+void dsDrawBox (const float pos[3], const float R[12], const float sides[3]);
 
 /**
  * @brief Draw a sphere.
@@ -203,7 +190,7 @@ DS_API void dsDrawBox (const float pos[3], const float R[12], const float sides[
  * @param R orientation.
  * @param radius
  */
-DS_API void dsDrawSphere (const float pos[3], const float R[12], float radius);
+void dsDrawSphere (const float pos[3], const float R[12], float radius);
 
 /**
  * @brief Draw a triangle.
@@ -215,34 +202,34 @@ DS_API void dsDrawSphere (const float pos[3], const float R[12], float radius);
  * @param v2 third vertex
  * @param solid set to 0 for wireframe
  */
-DS_API void dsDrawTriangle (const float pos[3], const float R[12],
+void dsDrawTriangle (const float pos[3], const float R[12],
 		     const float *v0, const float *v1, const float *v2, int solid);
 
 /**
  * @brief Draw a z-aligned cylinder
  * @ingroup drawstuff
  */
-DS_API void dsDrawCylinder (const float pos[3], const float R[12],
+void dsDrawCylinder (const float pos[3], const float R[12],
 		     float length, float radius);
 
 /**
  * @brief Draw a z-aligned capsule
  * @ingroup drawstuff
  */
-DS_API void dsDrawCapsule (const float pos[3], const float R[12],
+void dsDrawCapsule (const float pos[3], const float R[12],
 		    float length, float radius);
 
 /**
  * @brief Draw a line.
  * @ingroup drawstuff
  */
-DS_API void dsDrawLine (const float pos1[3], const float pos2[3]);
+void dsDrawLine (const float pos1[3], const float pos2[3]);
 
 /**
  * @brief Draw a convex shape.
  * @ingroup drawstuff
  */
-DS_API void dsDrawConvex(const float pos[3], const float R[12],
+void dsDrawConvex(const float pos[3], const float R[12],
 		  float *_planes,
 		  unsigned int _planecount,
 		  float *_points,
@@ -252,18 +239,18 @@ DS_API void dsDrawConvex(const float pos[3], const float R[12],
  /* these drawing functions are identical to the ones above, except they take
  * double arrays for `pos' and `R'.
  */
-DS_API void dsDrawBoxD (const double pos[3], const double R[12],
+void dsDrawBoxD (const double pos[3], const double R[12],
 		 const double sides[3]);
-DS_API void dsDrawSphereD (const double pos[3], const double R[12],
+void dsDrawSphereD (const double pos[3], const double R[12],
 		    const float radius);
-DS_API void dsDrawTriangleD (const double pos[3], const double R[12],
+void dsDrawTriangleD (const double pos[3], const double R[12],
 		      const double *v0, const double *v1, const double *v2, int solid);
-DS_API void dsDrawCylinderD (const double pos[3], const double R[12],
+void dsDrawCylinderD (const double pos[3], const double R[12],
 		      float length, float radius);
-DS_API void dsDrawCapsuleD (const double pos[3], const double R[12],
+void dsDrawCapsuleD (const double pos[3], const double R[12],
 		     float length, float radius);
-DS_API void dsDrawLineD (const double pos1[3], const double pos2[3]);
-DS_API void dsDrawConvexD(const double pos[3], const double R[12],
+void dsDrawLineD (const double pos1[3], const double pos2[3]);
+void dsDrawConvexD(const double pos[3], const double R[12],
 		  double *_planes,
 		  unsigned int _planecount,
 		  double *_points,
@@ -277,8 +264,8 @@ DS_API void dsDrawConvexD(const double pos[3], const double R[12],
  * This must be set before the first objects are drawn to be effective.
  * Default sphere quality is 1, default capsule quality is 3.
  */
-DS_API void dsSetSphereQuality (int n);		/* default = 1 */
-DS_API void dsSetCapsuleQuality (int n);		/* default = 3 */
+void dsSetSphereQuality (int n);		/* default = 1 */
+void dsSetCapsuleQuality (int n);		/* default = 3 */
 
 // Backwards compatible API
 #define dsDrawCappedCylinder dsDrawCapsule

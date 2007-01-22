@@ -1000,7 +1000,7 @@ static void myDebug (int num, const char *msg, va_list ap)
 }
 
 
-extern "C" void dTestMatrixComparison()
+extern "C" ODE_API void dTestMatrixComparison()
 {
   volatile int i;
   printf ("dTestMatrixComparison()\n");
@@ -1097,7 +1097,6 @@ extern "C" void dTestSolveLCP();
 
 int main()
 {
-  dInitODE();
   testRandomNumberGenerator();
   testInfinity();
   testPad();
@@ -1123,6 +1122,6 @@ int main()
   dTestMatrixComparison();
   dTestSolveLCP();
   // dTestDataStructures();
-  dCloseODE();
+
   return 0;
 }

@@ -35,6 +35,7 @@
 #define TRIMESH_INTERNAL
 #include "collision_trimesh_internal.h"
 
+
 #define MAX_REAL	dInfinity
 static const int	nCYLINDER_AXIS				= 2;
 static const int    nCYLINDER_CIRCLE_SEGMENTS	= 8;
@@ -462,7 +463,7 @@ bool _cldTestSeparatingAxes(sData& cData,
 	_CalculateAxis(v2 , vCp0 , cData.vCylinderAxis , vAxis);
 	if (!_cldTestAxis(cData, v0, v1, v2, vAxis, 13))
 	{ 
-		return false; 
+		return FALSE; 
 	}
 
 	// test cylinder axis
@@ -662,7 +663,6 @@ bool _cldClipCylinderEdgeToTriangle(sData& cData, const dVector3 &v0, const dVec
 
 void _cldClipCylinderToTriangle(sData& cData,const dVector3 &v0, const dVector3 &v1, const dVector3 &v2)
 {
-	int i = 0;
 	dVector3 avPoints[3];
 	dVector3 avTempArray1[nMAX_CYLINDER_TRIANGLE_CLIP_POINTS];
 	dVector3 avTempArray2[nMAX_CYLINDER_TRIANGLE_CLIP_POINTS];
@@ -700,7 +700,7 @@ void _cldClipCylinderToTriangle(sData& cData,const dVector3 &v0, const dVector3 
 	dVector3 vTemp;
 	dQuatInv(cData.qCylinderRot , cData.qInvCylinderRot);
 	// transform triangle points to space of cylinder circle
-	for(i=0; i<3; i++) 
+	for(int i=0; i<3; i++) 
 	{
 		dVector3Subtract(avPoints[i] , vCylinderCirclePos , vTemp);
 		dQuatTransform(cData.qInvCylinderRot,vTemp,avPoints[i]);
@@ -739,6 +739,7 @@ void _cldClipCylinderToTriangle(sData& cData,const dVector3 &v0, const dVector3 
 	dReal fTempDepth;
 	dVector3 vPoint;
 
+	int i = 0;
 	if (nCircleSegment %2)
 	{
 		for( i=0; i<iTmpCounter2; i++)
@@ -922,10 +923,7 @@ void _InitCylinderTrimeshData(sData& cData)
 	cData.fBestCenter = REAL(0.0);	
 }
 
-#if dTRIMESH_ENABLED
-
-// OPCODE version of cylinder to mesh collider
-#if dTRIMESH_OPCODE
+// cylinder to mesh collider
 int dCollideCylinderTrimesh(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
 {
 	// Main data holder
@@ -940,7 +938,7 @@ int dCollideCylinderTrimesh(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *con
 	cData.nContacts  = 0;
 
 	_InitCylinderTrimeshData(cData);
-
+ 
 	OBBCollider& Collider = cData.gTrimesh->_OBBCollider;
 
 	Point cCenter(cData.vCylinderPos[0],cData.vCylinderPos[1],cData.vCylinderPos[2]);
@@ -1044,82 +1042,6 @@ int dCollideCylinderTrimesh(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *con
 
 	return _ProcessLocalContacts(cData);
 }
-#endif
 
-// GIMPACT version of cylinder to mesh collider
-#if dTRIMESH_GIMPACT
-int dCollideCylinderTrimesh(dxGeom *o1, dxGeom *o2, int flags, dContactGeom *contact, int skip)
-{
-	// Main data holder
-	sData cData;
-
-	// Assign ODE stuff
-	cData.gCylinder	 = o1;
-	cData.gTrimesh	 = (dxTriMesh*)o2;
-	cData.iFlags	 = flags;
-	cData.iSkip		 = skip;
-	cData.gContact	 = contact;
-	cData.nContacts  = 0;
-
-	_InitCylinderTrimeshData(cData);
-
-//*****at first , collide box aabb******//
-
-	aabb3f test_aabb;
-
-	test_aabb.minX = o1->aabb[0];
-	test_aabb.maxX = o1->aabb[1];
-	test_aabb.minY = o1->aabb[2];
-	test_aabb.maxY = o1->aabb[3];
-	test_aabb.minZ = o1->aabb[4];
-	test_aabb.maxZ = o1->aabb[5];
-
-
-	GDYNAMIC_ARRAY collision_result;
-	GIM_CREATE_BOXQUERY_LIST(collision_result);
-
-	gim_aabbset_box_collision(&test_aabb, &cData.gTrimesh->m_collision_trimesh.m_aabbset , &collision_result);
-
-	if(collision_result.m_size==0)
-	{
-	    GIM_DYNARRAY_DESTROY(collision_result);
-	    return 0;
-	}
-//*****Set globals for box collision******//
-
-	int ctContacts0 = 0;
-	cData.gLocalContacts = (sLocalContactData*)dALLOCA16(sizeof(sLocalContactData)*(cData.iFlags & NUMC_MASK));
-
-	GUINT * boxesresult = GIM_DYNARRAY_POINTER(GUINT,collision_result);
-	GIM_TRIMESH * ptrimesh = &cData.gTrimesh->m_collision_trimesh;
-
-	gim_trimesh_locks_work_data(ptrimesh);
-
-
-	for(unsigned int i=0;i<collision_result.m_size;i++)
-	{
-	    if(cData.nContacts	>= (cData.iFlags & NUMC_MASK))
-        {
-            break;
-        }
-
-		dVector3 dv[3];
-		gim_trimesh_get_triangle_vertices(ptrimesh, boxesresult[i],dv[0],dv[1],dv[2]);
-        // test this triangle
-        TestOneTriangleVsCylinder(cData , dv[0],dv[1],dv[2], false);
-
-        // fill-in tri index for generated contacts
-        for (; ctContacts0<cData.nContacts; ctContacts0++)
-            cData.gLocalContacts[ctContacts0].triIndex =  boxesresult[i];
-	}
-
-	gim_trimesh_unlocks_work_data(ptrimesh);
-	GIM_DYNARRAY_DESTROY(collision_result);
-
-	return _ProcessLocalContacts(cData);
-}
-#endif
-
-#endif // dTRIMESH_ENABLED
 
 

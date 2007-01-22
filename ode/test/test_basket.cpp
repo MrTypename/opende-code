@@ -114,7 +114,7 @@ static void start()
 
 static void reset_ball(void)
 {
-  float sx=0.0f, sy=3.40f, sz=7.05;
+  float sx=0.0f, sy=3.40f, sz=6.80f;
 
 #if defined(_MSC_VER) && defined(dDOUBLE)
   sy -= 0.01; // Cheat, to make it score under win32/double
@@ -215,7 +215,6 @@ int main (int argc, char **argv)
     fn.path_to_textures = argv[1];
 
   // create world
-  dInitODE();
   world = dWorldCreate();
   space = dHashSpaceCreate (0);
 
@@ -272,7 +271,7 @@ int main (int argc, char **argv)
   dJointGroupDestroy (contactgroup);
   dSpaceDestroy (space);
   dWorldDestroy (world);
-  dCloseODE();
+
   return 0;
 }
 

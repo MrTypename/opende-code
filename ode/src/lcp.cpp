@@ -149,9 +149,25 @@ extern unsigned int dMemoryFlag;
 
 #endif
 
+//#define dDot myDot
 #define NUB_OPTIMIZATIONS
 
 //***************************************************************************
+
+// an alternative inline dot product, for speed comparisons
+
+static inline dReal myDot (dReal *a, dReal *b, int n)
+{
+  dReal sum=0;
+  while (n > 0) {
+    sum += (*a) * (*b);
+    a++;
+    b++;
+    n--;
+  }
+  return sum;
+}
+
 
 // swap row/column i1 with i2 in the n*n matrix A. the leading dimension of
 // A is nskip. this only references and swaps the lower triangle.
@@ -451,7 +467,7 @@ dLCP::dLCP (int _n, int _nub, dReal *_Adata, dReal *_x, dReal *_b, dReal *_w,
   int i,j;
   C.setSize (n);
   N.setSize (n);
-  for (i=0; i<n; i++) {
+  for (int i=0; i<n; i++) {
     C[i] = 0;
     N[i] = 0;
   }
@@ -1729,12 +1745,7 @@ extern "C" ODE_API void dTestSolveLCP()
 {
   int n = 100;
   int i,nskip = dPAD(n);
-#ifdef dDOUBLE
   const dReal tol = REAL(1e-9);
-#endif
-#ifdef dSINGLE
-  const dReal tol = REAL(1e-4);
-#endif
   printf ("dTestSolveLCP()\n");
 
   ALLOCA (dReal,A,n*nskip*sizeof(dReal));

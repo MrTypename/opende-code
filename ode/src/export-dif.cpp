@@ -187,8 +187,7 @@ static const char *getJointName (dxJoint *j)
 		case dJointTypeFixed: return "fixed";
 		case dJointTypeNull: return "null";
 		case dJointTypeAMotor: return "ODE_angular_motor";
-		case dJointTypeLMotor: return "ODE_linear_motor";
-		case dJointTypePR: return "PR";
+                case dJointTypeLMotor: return "ODE_linear_motor";
 	}
 	return "unknown";
 }
@@ -279,19 +278,6 @@ static void printHinge2 (PrintingContext &c, dxJoint *j)
 	c.print ("susp_cfm",h->susp_cfm);
 	printLimot (c,h->limot1,1);
 	printLimot (c,h->limot2,2);
-}
-
-static void printPR (PrintingContext &c, dxJoint *j)
-{
-	dxJointPR *pr = (dxJointPR*) j;
-	c.print ("anchor2",pr->anchor2);
-	c.print ("axisR1",pr->axisR1);
-	c.print ("axisR2",pr->axisR2);
-	c.print ("axisP1",pr->axisP1);
-	c.print ("qrel",pr->qrel,4);
-	c.print ("offset",pr->offset);
-	printLimot (c,pr->limotP,1);
-	printLimot (c,pr->limotR,2);
 }
 
 
@@ -459,9 +445,8 @@ void dWorldExportDIF (dWorldID w, FILE *file, const char *prefix)
 	c.print ("CFM",w->global_cfm);
 	c.print ("auto_disable = {");
 	c.indent++;
-	c.print ("linear_threshold",w->adis.linear_average_threshold);
-	c.print ("angular_threshold",w->adis.angular_average_threshold);
-	c.print ("average_samples",(int)w->adis.average_samples);
+	c.print ("linear_threshold",w->adis.linear_threshold);
+	c.print ("angular_threshold",w->adis.angular_threshold);
 	c.print ("idle_time",w->adis.idle_time);
 	c.print ("idle_steps",w->adis.idle_steps);
 	fprintf (file,"\t\t},\n\t},\n}\n");
@@ -497,9 +482,8 @@ void dWorldExportDIF (dWorldID w, FILE *file, const char *prefix)
 		if (b->flags & dxBodyAutoDisable) {
 			c.print ("auto_disable = {");
 			c.indent++;
-			c.print ("linear_threshold",b->adis.linear_average_threshold);
-			c.print ("angular_threshold",b->adis.angular_average_threshold);
-			c.print ("average_samples",(int)b->adis.average_samples);
+			c.print ("linear_threshold",b->adis.linear_threshold);
+			c.print ("angular_threshold",b->adis.angular_threshold);
 			c.print ("idle_time",b->adis.idle_time);
 			c.print ("idle_steps",b->adis.idle_steps);
 			c.print ("time_left",b->adis_timeleft);
@@ -554,8 +538,7 @@ void dWorldExportDIF (dWorldID w, FILE *file, const char *prefix)
 			case dJointTypeHinge2: printHinge2 (c,j); break;
 			case dJointTypeFixed: printFixed (c,j); break;
 			case dJointTypeAMotor: printAMotor (c,j); break;
-			case dJointTypeLMotor: printLMotor (c,j); break;
-			case dJointTypePR: printPR (c,j); break;
+                        case dJointTypeLMotor: printLMotor (c,j); break;
 		}		
 		c.indent--;
 		c.print ("}");

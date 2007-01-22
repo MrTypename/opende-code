@@ -14,27 +14,19 @@ package.objdir = "obj/ode"
 
 -- Write a custom <config.h> to include/ode, based on the specified flags
 
-  io.input("config-default.h")
+  io.input("config.in")
   local text = io.read("*a")
 
   if (options["with-doubles"]) then
-    text = string.gsub(text, "#define dSINGLE", "/* #define dSINGLE */")
-    text = string.gsub(text, "/%* #define dDOUBLE %*/", "#define dDOUBLE")
+    text = string.gsub(text, "{PRECISION}", "dDOUBLE")
+  else
+    text = string.gsub(text, "{PRECISION}", "dSINGLE")
   end
 
   if (options["no-trimesh"]) then
-    
-    text = string.gsub(text, "#define dTRIMESH_ENABLED 1", "/* #define dTRIMESH_ENABLED 1 */")
-    text = string.gsub(text, "#define dTRIMESH_OPCODE 1", "/* #define dTRIMESH_OPCODE 1 */")
-  
-  elseif (options["with-gimpact"]) then
-
-    text = string.gsub(text, "#define dTRIMESH_OPCODE 1", "#define dTRIMESH_GIMPACT 1")
-  
-  end
-  
-  if (options["no-alloca"]) then
-    text = string.gsub(text, "/%* #define dUSE_MALLOC_FOR_ALLOCA %*/", "#define dUSE_MALLOC_FOR_ALLOCA")
+    text = string.gsub(text, "{TRIMESH}", "0")
+  else
+    text = string.gsub(text, "{TRIMESH}", "1")
   end
 
   io.output("../include/ode/config.h")
@@ -45,17 +37,12 @@ package.objdir = "obj/ode"
 -- Package Build Settings
 
   if (options["enable-shared-only"]) then
-  
     package.kind = "dll"
     table.insert(package.defines, "ODE_DLL")
-  
   elseif (options["enable-static-only"]) then
-  
     package.kind = "lib"
     table.insert(package.defines, "ODE_LIB")
-  
   else
-  
     package.config["DebugDLL"].kind = "dll"
     package.config["DebugLib"].kind = "lib"
     package.config["ReleaseDLL"].kind = "dll"
@@ -65,14 +52,12 @@ package.objdir = "obj/ode"
     table.insert(package.config["ReleaseDLL"].defines, "ODE_DLL")
     table.insert(package.config["DebugLib"].defines, "ODE_LIB")
     table.insert(package.config["ReleaseLib"].defines, "ODE_LIB")
-  
   end
 
   package.includepaths =
   {
     "../../include",
-    "../../OPCODE",
-    "../../GIMPACT/include"
+    "../../OPCODE"
   }
 
   if (windows) then
@@ -124,8 +109,7 @@ package.objdir = "obj/ode"
   trimesh_files =
   {
     "../../ode/src/collision_trimesh_internal.h",
-    "../../ode/src/collision_trimesh_opcode.cpp",
-    "../../ode/src/collision_trimesh_gimpact.cpp",
+    "../../ode/src/collision_trimesh.cpp",
     "../../ode/src/collision_trimesh_box.cpp",
     "../../ode/src/collision_trimesh_ccylinder.cpp",
     "../../ode/src/collision_cylinder_trimesh.cpp",
@@ -139,11 +123,6 @@ package.objdir = "obj/ode"
   opcode_files =
   {
     matchrecursive("../../OPCODE/*.h", "../../OPCODE/*.cpp")
-  }
-  
-  gimpact_files =
-  {
-    matchrecursive("../../GIMPACT/*.h", "../../GIMPACT/*.cpp")
   }
 
   dif_files =
@@ -161,6 +140,5 @@ package.objdir = "obj/ode"
   if (options["no-trimesh"]) then
     table.insert(package.excludes, trimesh_files)
   else
-    table.insert(package.files, gimpact_files)
     table.insert(package.files, opcode_files)
   end

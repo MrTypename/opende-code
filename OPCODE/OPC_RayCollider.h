@@ -33,7 +33,7 @@
 				float		mU, mV;					//!< Impact barycentric coordinates
 	};
 
-	class OPCODE_API CollisionFaces : public Container
+	class OPCODE_API CollisionFaces : private Container
 	{
 		public:
 		//! Constructor

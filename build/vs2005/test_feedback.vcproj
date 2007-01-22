@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="test_feedback"
-	ProjectGUID="{9F0E57B5-98AD-284A-AAE7-7885B2229FA2}"
+	ProjectGUID="{6F7B56B3-2CEE-5948-9D99-7B8BB7FEF3B4}"
 	RootNamespace="test_feedback"
 	Keyword="Win32Proj"
 	>
