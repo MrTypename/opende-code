@@ -10,14 +10,13 @@ ifeq ($(CONFIG),DebugDLL)
   LIBDIR := ../../lib/DebugDLL
   OBJDIR := obj/ode/DebugDLL
   OUTDIR := ../../lib/DebugDLL
-  CPPFLAGS := -MMD -D "WIN32" -D "ODE_DLL" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
+  CPPFLAGS := -MD -D "WIN32" -D "ODE_DLL" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
+  CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -shared -luser32
   LDDEPS :=
-  RESFLAGS := -D "WIN32" -D "ODE_DLL" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
   TARGET := ode.dll
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
 
 ifeq ($(CONFIG),ReleaseDLL)
@@ -25,14 +24,13 @@ ifeq ($(CONFIG),ReleaseDLL)
   LIBDIR := ../../lib/ReleaseDLL
   OBJDIR := obj/ode/ReleaseDLL
   OUTDIR := ../../lib/ReleaseDLL
-  CPPFLAGS := -MMD -D "WIN32" -D "ODE_DLL" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -fomit-frame-pointer
+  CPPFLAGS := -MD -D "WIN32" -D "ODE_DLL" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
+  CFLAGS += $(CPPFLAGS) -O3 -fomit-frame-pointer
   CXXFLAGS := $(CFLAGS)
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -shared -s -luser32
   LDDEPS :=
-  RESFLAGS := -D "WIN32" -D "ODE_DLL" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
   TARGET := ode.dll
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
 
 ifeq ($(CONFIG),DebugLib)
@@ -40,14 +38,13 @@ ifeq ($(CONFIG),DebugLib)
   LIBDIR := ../../lib/DebugLib
   OBJDIR := obj/ode/DebugLib
   OUTDIR := ../../lib/DebugLib
-  CPPFLAGS := -MMD -D "WIN32" -D "ODE_LIB" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
+  CPPFLAGS := -MD -D "WIN32" -D "ODE_LIB" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
+  CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -luser32
   LDDEPS :=
-  RESFLAGS := -D "WIN32" -D "ODE_LIB" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
-  TARGET := libode.a
-  BLDCMD = ar -rcs $(OUTDIR)/$(TARGET) $(OBJECTS) $(TARGET_ARCH)
+  TARGET := ode.lib
+  BLDCMD = ar -cr $(OUTDIR)/$(TARGET) $(OBJECTS); ranlib $(OUTDIR)/$(TARGET)
 endif
 
 ifeq ($(CONFIG),ReleaseLib)
@@ -55,14 +52,13 @@ ifeq ($(CONFIG),ReleaseLib)
   LIBDIR := ../../lib/ReleaseLib
   OBJDIR := obj/ode/ReleaseLib
   OUTDIR := ../../lib/ReleaseLib
-  CPPFLAGS := -MMD -D "WIN32" -D "ODE_LIB" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -fomit-frame-pointer
+  CPPFLAGS := -MD -D "WIN32" -D "ODE_LIB" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
+  CFLAGS += $(CPPFLAGS) -O3 -fomit-frame-pointer
   CXXFLAGS := $(CFLAGS)
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -s -luser32
   LDDEPS :=
-  RESFLAGS := -D "WIN32" -D "ODE_LIB" -I "../../include" -I "../../OPCODE" -I "../../GIMPACT/include"
-  TARGET := libode.a
-  BLDCMD = ar -rcs $(OUTDIR)/$(TARGET) $(OBJECTS) $(TARGET_ARCH)
+  TARGET := ode.lib
+  BLDCMD = ar -cr $(OUTDIR)/$(TARGET) $(OBJECTS); ranlib $(OUTDIR)/$(TARGET)
 endif
 
 OBJECTS := \
@@ -198,13 +194,7 @@ $(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
 
 clean:
 	@echo Cleaning ode
-ifeq ($(MKDIR_TYPE),posix)
 	-@rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
-else
-	-@if exist $(subst /,\,$(OUTDIR)/$(TARGET)) del /q $(subst /,\,$(OUTDIR)/$(TARGET))
-	-@if exist $(subst /,\,$(OBJDIR)) del /q $(subst /,\,$(OBJDIR))
-	-@if exist $(subst /,\,$(OBJDIR)) rmdir /s /q $(subst /,\,$(OBJDIR))
-endif
 
 $(OBJDIR)/fastdot.o: ../../ode/src/fastdot.c
 	-@$(CMD_MKOBJDIR)

@@ -1374,12 +1374,8 @@ static void contactGetInfo2 (dxJointContact *j, dxJoint::Info2 *info)
   dReal k = info->fps * erp;
   dReal depth = j->contact.geom.depth - j->world->contactp.min_depth;
   if (depth < 0) depth = 0;
-
-  const dReal maxvel = j->world->contactp.max_vel;
-  info->c[0] = k*depth;
-  if (info->c[0] > maxvel)
-    info->c[0] = maxvel;
-
+  dReal maxvel = j->world->contactp.max_vel;
+  if (k*depth > maxvel) info->c[0] = maxvel; else info->c[0] = k*depth;
   if (j->contact.surface.mode & dContactSoftCFM)
     info->cfm[0] = j->contact.surface.soft_cfm;
 
@@ -2603,6 +2599,7 @@ static void PRGetInfo1 (dxJointPR *j, dxJoint::Info1 *info)
 
 static void PRGetInfo2 (dxJointPR *joint, dxJoint::Info2 *info)
 {
+  int i;
   int s = info->rowskip;
   int s2= 2*s;
   int s3= 3*s;
@@ -3985,6 +3982,5 @@ void dJointSetPlane2DAngleParam (dxJoint *joint,
 	dxJointPlane2D* joint2d = (dxJointPlane2D*)( joint );
 	joint2d->motor_angle.set (parameter, value);
 }
-
 
 

@@ -10,14 +10,13 @@ ifeq ($(CONFIG),DebugDLL)
   LIBDIR := ../../lib/DebugDLL
   OBJDIR := obj/tests/DebugDLL
   OUTDIR := ../../lib/DebugDLL
-  CPPFLAGS := -MMD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
+  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
+  CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/DebugDLL/ode.dll
   LDDEPS := ../../lib/DebugDLL/ode.dll
-  RESFLAGS := -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
   TARGET := tests.exe
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
 
 ifeq ($(CONFIG),ReleaseDLL)
@@ -25,14 +24,13 @@ ifeq ($(CONFIG),ReleaseDLL)
   LIBDIR := ../../lib/ReleaseDLL
   OBJDIR := obj/tests/ReleaseDLL
   OUTDIR := ../../lib/ReleaseDLL
-  CPPFLAGS := -MMD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
+  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
+  CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/ReleaseDLL/ode.dll
   LDDEPS := ../../lib/ReleaseDLL/ode.dll
-  RESFLAGS := -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
   TARGET := tests.exe
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
 
 ifeq ($(CONFIG),DebugLib)
@@ -40,14 +38,13 @@ ifeq ($(CONFIG),DebugLib)
   LIBDIR := ../../lib/DebugLib
   OBJDIR := obj/tests/DebugLib
   OUTDIR := ../../lib/DebugLib
-  CPPFLAGS := -MMD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
+  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
+  CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/DebugLib/libode.a
-  LDDEPS := ../../lib/DebugLib/libode.a
-  RESFLAGS := -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/DebugLib/ode.lib
+  LDDEPS := ../../lib/DebugLib/ode.lib
   TARGET := tests.exe
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
 
 ifeq ($(CONFIG),ReleaseLib)
@@ -55,14 +52,13 @@ ifeq ($(CONFIG),ReleaseLib)
   LIBDIR := ../../lib/ReleaseLib
   OBJDIR := obj/tests/ReleaseLib
   OUTDIR := ../../lib/ReleaseLib
-  CPPFLAGS := -MMD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g
+  CPPFLAGS := -MD -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
+  CFLAGS += $(CPPFLAGS) -g
   CXXFLAGS := $(CFLAGS)
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/ReleaseLib/libode.a
-  LDDEPS := ../../lib/ReleaseLib/libode.a
-  RESFLAGS := -D "_CRT_SECURE_NO_DEPRECATE" -I "../../include" -I "../../tests/CppTestHarness"
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) ../../lib/ReleaseLib/ode.lib
+  LDDEPS := ../../lib/ReleaseLib/ode.lib
   TARGET := tests.exe
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
+  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES)
 endif
 
 OBJECTS := \
@@ -109,13 +105,7 @@ $(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
 
 clean:
 	@echo Cleaning tests
-ifeq ($(MKDIR_TYPE),posix)
 	-@rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
-else
-	-@if exist $(subst /,\,$(OUTDIR)/$(TARGET)) del /q $(subst /,\,$(OUTDIR)/$(TARGET))
-	-@if exist $(subst /,\,$(OBJDIR)) del /q $(subst /,\,$(OBJDIR))
-	-@if exist $(subst /,\,$(OBJDIR)) rmdir /s /q $(subst /,\,$(OBJDIR))
-endif
 
 $(OBJDIR)/main.o: ../../tests/main.cpp
 	-@$(CMD_MKOBJDIR)
