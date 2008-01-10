@@ -1,0 +1,19 @@
+# Drawstuff is meant as an aid for testing and not as a full
+# rendering library.
+
+noinst_LTLIBRARIES = libdrawstuff.la
+libdrawstuff_la_SOURCES = drawstuff.cpp internal.h
+libdrawstuff_la_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include \
+        -DDEFAULT_PATH_TO_TEXTURES='"$(top_srcdir)/drawstuff/textures/"'
+libdrawstuff_la_LIBADD = @LIBWINMM@ @LIBGDI32@
+
+if WIN32
+libdrawstuff_la_SOURCES+= windows.cpp resource.h resources.rc
+endif
+if X11
+libdrawstuff_la_SOURCES+= x11.cpp
+endif
+if OSX
+libdrawstuff_la_SOURCES+= osx.cpp
+endif
+
