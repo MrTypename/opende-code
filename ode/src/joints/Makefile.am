@@ -7,6 +7,7 @@ libjoints_la_SOURCES =  joints.h \
                         joint_internal.h \
                         ball.h ball.cpp \
                         hinge.h hinge.cpp \
+                        screw.h screw.cpp \
                         slider.h slider.cpp \
                         contact.h contact.cpp \
                         universal.h universal.cpp \
@@ -19,4 +20,28 @@ libjoints_la_SOURCES =  joints.h \
                         pu.h pu.cpp \
                         pr.h pr.cpp \
                         piston.h piston.cpp
+
+#################################
+#   Export more files for external solver use
+#################################
+libode_la_includedir = $(includedir)/src/joints
+libode_la_include_HEADERS = 	\
+				universal.h \
+				slider.h \
+				pu.h \
+				pr.h \
+				plane2d.h \
+				piston.h \
+				null.h \
+				lmotor.h \
+				joints.h \
+				joint_internal.h \
+				joint.h \
+				hinge.h \
+				screw.h \
+				hinge2.h \
+				fixed.h \
+				contact.h \
+				ball.h \
+				amotor.h
 

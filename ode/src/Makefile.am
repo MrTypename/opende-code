@@ -51,12 +51,15 @@ libode_la_SOURCES =     nextafterf.c \
                         odemath.cpp \
                         odeou.h \
                         odetls.h \
+                        optimize.cpp optimize.h \
                         plane.cpp \
                         quickstep.cpp quickstep.h \
                         ray.cpp \
+                        robuststep.cpp robuststep.h \
                         rotation.cpp \
                         sphere.cpp \
                         step.cpp step.h \
+												symm.c \
                         timer.cpp \
                         util.cpp util.h
 
@@ -123,6 +126,47 @@ libode_la_SOURCES+=     collision_trimesh_trimesh.cpp \
                         collision_trimesh_plane.cpp
 endif
 
+#################################
+#   Export more files for external solver use
+#################################
+libode_la_includedir = $(includedir)/src
+libode_la_include_HEADERS = 	\
+				util.h \
+				step.h \
+				robuststep.h \
+				quickstep.h \
+				optimize.h \
+				odetls.h \
+				odeou.h \
+				obstack.h \
+				objects.h \
+				mat.h \
+				lcp.h \
+				heightfield.h \
+				collision_util.h \
+				collision_trimesh_internal.h \
+				collision_trimesh_colliders.h \
+				collision_transform.h \
+				collision_std.h \
+				collision_space_internal.h \
+				collision_kernel.h \
+				array.h \
+				config.h \
+				collision_libccd.h
+
+
+
+#################################
+#   B O O S T  A D D I T I O N
+#################################
+
+AM_CPPFLAGS += $(BOOST_CPPFLAGS)
+# These other two are unnecessary, because only boost's shared array is 
+# used, which consists only of a header. 
+# If boost is used more completely, these need to be added (and a check
+# for the requisite library in the configure.in)
+#libode_la_LDFLAGS += $(BOOST_THREAD_LDFLAGS)
+#libode_la_LIBS += $(BOOST_THREAD_LIBS)
 
 if LIBCCD
 AM_CPPFLAGS += -I$(top_srcdir)/libccd/src -I$(top_builddir)/libccd/src -DdLIBCCD_ENABLED
